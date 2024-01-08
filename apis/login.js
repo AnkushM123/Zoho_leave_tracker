@@ -1,32 +1,47 @@
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const userService = require('../core/services/user-service');
+const userModel = require('../core/schema/user-schema')
 
 /**
 * @swagger
 * /register:
-*     post:
-*      tags: [Register]
-*      requestBody:
-*        content:
+*   post:
+*     tags: [Register]
+*     requestBody:
+*       required: true
+*       content:
 *          multipart/form-data:
-*            schema:
-*              type: object
-*              properties:
+*           schema:
+*             type: object
+*             properties:
 *                name:
 *                 type: string
 *                address:
-*                 type: string
+*                 type: object
+*                 properties:
+*                   flat_details:
+*                     type: string
+*                   area:
+*                      type: string
+*                   landmark:
+*                     type: string
+*
 *                age:
 *                 type: integer
 *                mobile:
 *                 type: string
 *                gender:
-*                 type: string
-*                role:
-*                 type: array
-*                 items:
-*                  type: integer
+*                  type: string
+*                  enum:
+*                    - male
+*                    - female
+*                roles: {
+*                   type: array,
+*                   items: {
+*                   type: string
+*                    }
+*                   }
 *                email:
 *                  type: string
 *                password:
@@ -34,71 +49,120 @@ const userService = require('../core/services/user-service');
 *                avatar:
 *                  type: string
 *                  format: binary
-*      responses:
-*       '200':
-*         description: employee registered successfully
-*       '500':
-*         description: Internal server error
-*       '400':
-*         description: Bad Request
+*                managerId:
+*                 type: string
+*                createdBy:
+*                 type: string
+*                updatedBy:
+*                 type: string 
+*     produces:
+*         application/json
+*     responses:
+*       200:
+*         description: user created successfully
+*         content:
+*           application/json:
+*            schema:
+*              type: object
+*              properties:
+*                _id:
+*                 type: string
+*                name:
+*                 type: string
+*                address:
+*                 type: object
+*                 properties:
+*                   flat_details:
+*                     type: string
+*                   area:
+*                      type: string
+*                   landmark:
+*                     type: string
+*                age:
+*                 type: integer
+*                mobile:
+*                 type: string
+*                gender:
+*                 type: string
+*                roles:
+*                  type: array
+*                  items:
+*                     type: integer
+*                email:
+*                 type: string
+*                password:
+*                 type: string
+*                avatar:
+*                 type: string
+*                managerId:
+*                 type: string
+*                createdBy:
+*                 type: string
+*                updatedBy:
+*                 type: string
+*                createdAt:
+*                 type: string
+*                 format: date
+*                updatedAt:
+*                 type: string
+*                 format: date
+*                isActive:
+*                 type: boolean
+*                isDeleted:
+*                 type: boolean
+*       400:
+*         description: Bad request
 */
 
-const register = async (req, res) => {
-    if (validator.isEmpty(req.body.email)) {
-        res.status(400).send("email is required");
-        return;
-    }
-    if (validator.isEmpty(req.body.password)) {
-        res.status(400).send("password is required");
-        return;
-    }
-    if (validator.isEmpty(req.body.name)) {
-        res.status(400).send("name is required");
-        return;
-    }
-    if (validator.isEmpty(req.body.address)) {
-        res.status(400).send("address is required");
-        return;
-    }
-    if (validator.isEmpty(req.body.age)) {
-        res.status(400).send("age is required");
-        return;
-    }
-    if (validator.isEmpty(req.body.mobile)) {
-        res.status(400).send("mobile is required");
-        return;
-    }
+const registerUser = async (req, res) => {
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return (regex.test(password));
+  }
 
-    if (validator.isEmail(req.body.email)) {
-        const _email = await userService.getUserByEmail(req.body.email);
-        if (_email.length > 0) {
-            res.status(400).send("email-Id is already present");
-            return
-        }
-    } else {
-        res.status(400).send("please enter valid email");
-        return
-    }
+  if (!req.body.name.trim() || !req.body.address.trim() || !req.body.mobile.trim() || !req.body.gender.trim() || req.body.roles.length == 0 || !req.body.email.trim() || !req.body.password.trim() || req.body.age < 1) {
+    res.status(400).send("name,address,age,mobile,gender,role,email and password are required fields");
+    return
+  }
 
-    let user = new userModel({
-        email: req.body.email,
-        password: req.body.password
-    })
+  if (req.body.age < 0 || req.body.age > 60) {
+    res.status(400).send("age must be within 60");
+    return
 
-    let userData = await userService.createUser(user);
+  }
 
-    let employee = new employeeModel({
-        name: req.body.name,
-        address: req.body.address,
-        age: req.body.age,
-        mobile: req.body.mobile,
-        is_active: req.body.is_active,
-        avatar: req.file.path,
-        user_id: userData._id
-    })
-    let employeeData = await employeeService.createEmployee(employee);
+  if (!validator.isEmail(req.body.email)) {
+    res.status(400).send("please enter valid email");
+    return
+  }
 
-    res.send("employee registered successfully");
+  if (!validatePassword(req.body.password)) {
+    res.status(400).send("Password must contain atleast one lower,one upper,one special character,one digit,no blank spaces and length must be between 8-20 characters");
+    return
+  }
+  const add = JSON.parse(req.body.address)
+
+  let employee = new userModel({
+    name: req.body.name,
+    address: {
+      flat_details: add.flat_details,
+      landmark: add.landmark,
+      area: add.area
+    },
+    age: req.body.age,
+    mobile: req.body.mobile,
+    gender: req.body.gender,
+    roles: req.body.roles.split(','),
+    email: req.body.email,
+    password: req.body.password,
+    managerId: req.body.managerId,
+    createdBy: req.body.createdBy,
+    updatedBy: req.body.updatedBy,
+    avatar: req.file.path
+  })
+  employee.roles
+  let data = await userService.createUser(employee);
+  res.send(data);
 }
 
 
@@ -106,19 +170,18 @@ const register = async (req, res) => {
 const secretKey = 'dcsgjvjcddsdhvscskhadafsrgvrsgrf';
 
 const authenticateToken = (req, res, next) => {
-    const token = req.headers.authorization?.split(' ')[1];
+  const token = req.headers.authorization?.split(' ')[1];
 
-    if (!token) {
-        return res.status(401).json({ error: 'Unauthorized: Token missing' });
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized: Token missing' });
+  }
+  jwt.verify(token, secretKey, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Forbidden: Invalid token' });
     }
-
-    jwt.verify(token, secretKey, (err, user) => {
-        if (err) {
-            return res.status(403).json({ error: 'Forbidden: Invalid token' });
-        }
-        req.user = user;
-        next();
-    });
+    req.user = user;
+    next();
+  });
 };
 
 /**
@@ -142,22 +205,26 @@ const authenticateToken = (req, res, next) => {
 *     responses:
 *       200:
 *         description: successfully Logged-In
+*         content:
+*           text/plain:
+*             schema:
+*               type: string
+*               example: 'token'
 *       400:
 *         description: Bad request
 */
 
 const login = async (req, res) => {
-    const data = await userService.getUserByEmailAndPassword(req.body)
+  const data = await userService.getUserByEmailAndPassword(req.body)
+  const user = { "email": data.email }
 
-    const user = { "email": data.email }
+  if (data.length > 0) {
+    const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
 
-    if (data.length > 0) {
-        const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
-
-        res.json({ token });
-    } else {
-        res.status(400).send("Credential are incorrect");
-    }
+    res.json({ token });
+  } else {
+    res.status(400).send("Credential are incorrect");
+  }
 };
 
-module.exports = {  login, authenticateToken,register };
+module.exports = { login, authenticateToken, registerUser };

@@ -1,37 +1,37 @@
-
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const leaveSchema =new mongoose.Schema({
-    user_id: {
+const leaveSchema = new mongoose.Schema({
+    userId: {
         type: Schema.Types.ObjectId,
         ref: 'users'
-      },
-      compensantoryOff: {
-        type: Number,
-        default: 0
-      },
-      forgotIdCard: {
-        type: Number,
-        default: 0
-      },
-      outOfOfficeOnDuty: {  
-        type: Number,
-        default: 0
-      },
-      paidLeave: {
-        type: Number,
-        default: 1.75
-      },
-      unpaidLeave: {
-        type: Number,
-        default: 0
-      },
-      workFromHome: {
-        type: Number,
-        default: 1
-      }
+    },
+    leaveId: {
+        type: Schema.Types.ObjectId,
+        ref: 'leaveType'
+    },
+    balance: {
+        type: Number
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     }
+}, {
+    timestamps: true
+}
 )
 
 const leaveModel = mongoose.model("leave", leaveSchema);

@@ -65,14 +65,14 @@ const deleteUser = async function (id) {
 
 const getUserByRole = async function (id) {
     try {
-        const data = await userModel.find({role:{$size:id} })
+        const data = await userModel.find({ role: { $size: id } })
         return data;
     } catch (err) {
         console.log(err);
     }
 }
 
-const changePassword=async function (_email, _password) {
+const changePassword = async function (_email, _password) {
     try {
         const data = await userModel.findOneAndUpdate({ email: _email }, { $set: { password: _password } })
         return data;
@@ -81,4 +81,4 @@ const changePassword=async function (_email, _password) {
     }
 }
 
-module.exports = { getUser, getUserById, deleteUser, editUser, createUser, getUserByEmail, getUserByEmailAndPassword,getUserByRole,changePassword }
+module.exports = { getUser, getUserById, deleteUser, editUser, createUser, getUserByEmail, getUserByEmailAndPassword, getUserByRole, changePassword }

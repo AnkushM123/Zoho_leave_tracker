@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -26,22 +27,16 @@ const userSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
-    enum: ['male','female'],
+    enum: ['male', 'female'],
     required: true
   },
-  // roles:{
-  //   type: Array,
-  //   items: {          
-  //     type: Object
-  //   },
-  // },
-  roles : [
+  roles: [
     {
-      type : String
+      type: String
     }
   ],
   email: {
-    type: String, 
+    type: String,
     trim: true,
     lowercase: true,
     unique: true,
@@ -56,7 +51,9 @@ const userSchema = new mongoose.Schema({
     type: String
   },
   managerId: {
-    type: String
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    required: true
   },
   isActive: {
     type: Boolean,
