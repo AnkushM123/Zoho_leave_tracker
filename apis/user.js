@@ -5,7 +5,7 @@ const validator = require('validator');
 *  @swagger 
 * /user:
 *   get:
-*     description: Get a user
+*     description: Get a current user
 *     security:
 *       - bearerAuth: []
 *     tags: [User]
