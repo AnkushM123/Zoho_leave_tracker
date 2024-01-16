@@ -56,10 +56,9 @@ const getRoleById = async (req, res) => {
   if (isValidObjectId(req.params.id)) {
     let role = await roleService.getRoleById(req.params.id);
     if (role.length > 0) {
-      res.send(role);
-      return
+      return res.send(role);
     } else {
-      res.status(404).send('role name not found')
+      return res.status(404).send('role name not found')
     }
   } else {
     res.status(400).send("please enter valid id");
@@ -109,7 +108,6 @@ const getRoles = async (req, res) => {
   let data = await roleService.getRoles();
   if (data.length > 0) {
     res.send(data);
-    return
   }
   else {
     res.status(404).json("No data found");
