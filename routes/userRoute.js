@@ -1,18 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const user = require('../apis/user')
-const upload = require('../image_api')
+const user = require('../apis/user');
 const login = require('../apis/login');
 
-router.route("/setPassword").put(user.changePassword);
+router.route("/setPassword").put(login.authenticateToken,user.changePassword);
 
 router.route("/").get(login.authenticateToken,user.getUser)
 
+router.route("/:id").put(login.authenticateToken,user.editUser);
 
-router.route("/:id").delete(user.deleteUser)
-    .put(upload.single('avatar'), user.editUser);
-
-router.route("/getEmail").post(user.getUserByEmail);
-
+router.route("/isVarifyEmail").post(login.authenticateToken,user.getUserByEmail);
 
 module.exports = router   

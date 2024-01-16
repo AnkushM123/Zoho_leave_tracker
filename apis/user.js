@@ -77,13 +77,11 @@ const getUser = async (req, res) => {
   let data = await userService.getUser(req.user.id);
   if (data.length > 0) {
     res.send(data);
-    return
   }
   else {
     res.status(404).json("No data found");
   }
 }
-
 
 /**
 * @swagger
@@ -91,6 +89,8 @@ const getUser = async (req, res) => {
 *  put:
 *     description: Update an existing user using its ID.
 *     tags: [User]
+*     security:
+*       - bearerAuth: []
 *     parameters:
 *       - name: id
 *         in: path
@@ -119,14 +119,8 @@ const getUser = async (req, res) => {
 *                 type: integer
 *                mobile:
 *                 type: string
-*                gender:
-*                  type: string
-*                  enum:
-*                    - male
-*                    - female
-*                avatar:
-*                  type: string
-*                  format: binary 
+*                email:
+*                 type: string
 *                updatedBy:
 *                 type: string
 *     responses:
@@ -160,11 +154,13 @@ const editUser = async (req, res) => {
   };
 
   if (req.body.age < 0 || req.body.age > 60) {
-    res.status(400).send("age must be within 60");
-    return
+    return res.status(400).send("age must be within 60");
   }
 
   if (isValidObjectId(req.params.id)) {
+    if (!req.body.name || !req.body.address || !req.body.mobile || !req.body.email || req.body.age < 1) {
+      return res.status(400).send("name,address,age,mobile,email are required fields");
+    }
     const add = JSON.parse(req.body.address)
     let employee = ({
       name: req.body.name,
@@ -175,19 +171,17 @@ const editUser = async (req, res) => {
       },
       age: req.body.age,
       mobile: req.body.mobile,
-      gender: req.body.gender,
-      avatar: req.file.path,
+      email: req.body.email,
       updatedBy: req.body.updatedBy
     })
-    const data = await userService.editUser(req.params.id, employee);
-    if (data.modifiedCount === 1) {
-      res.send("user updated successfully")
-      return
-    }
 
-    else {
-      res.status(404).json("No data found");
-      return
+    const data = await userService.editUser(req.params.id, employee);
+
+    if (data.modifiedCount === 1) {    
+      return res.send("user updated successfully")
+    }
+    else {  
+      return res.status(404).json("No data found");
     }
   }
   else {
@@ -195,70 +189,14 @@ const editUser = async (req, res) => {
   }
 }
 
-
 /**
 * @swagger
-* /user/{id}:
-*  delete:
-*     description: delete an existing user using its ID.
-*     tags: [User]
-*     parameters:
-*       - name: id
-*         in: path
-*         required: true
-*         schema:
-*          type: string
-*     responses:
-*       '200':
-*         description: Success
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'user deleted successfully' 
-*       '404':
-*         description: No data found
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'No data found' 
-*       400:
-*         description: Invalid Id
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'Invalid Id format'     
-*/
-
-const deleteUser = async (req, res) => {
-  let isValidObjectId = (id) => {
-    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-    return objectIdRegex.test(id);
-  };
-
-  if (isValidObjectId(req.params.id)) {
-    let data = await userService.deleteUser(req.params.id);
-    if (data.deletedCount > 0) {
-      res.send("user deleted successfully");
-      return
-    }
-    else {
-      res.status(404).json("No data found");
-      return
-    }
-  } else {
-    res.status(400).json("Invalid Id Format");
-  }
-}
-
-/**
-* @swagger
-*  /user/getEmail:
+*  /user/isVarifyEmail:
 *  post:
 *     description: search an existing user using its email.
 *     tags: [User]
+*     security:
+*       - bearerAuth: []
 *     requestBody:
 *       required: true
 *       content:
@@ -342,15 +280,12 @@ const getUserByEmail = async (req, res) => {
   if (validator.isEmail(req.body.email)) {
     const _email = await userService.getUserByEmail(req.body.email);
     if (_email.length > 0) {
-      res.status(200).send(_email);
-      return
+      return res.status(200).send(_email);
     } else {
-      res.status(404).send("user not found");
-      return
+      return res.status(404).send("user not found");  
     }
   } else {
     res.status(400).send("please enter valid email");
-    return
   }
 }
 
@@ -360,6 +295,8 @@ const getUserByEmail = async (req, res) => {
 *  put:
 *     description: change password of user using its email.
 *     tags: [User]
+*     security:
+*       - bearerAuth: []
 *     requestBody:
 *       required: true
 *       content:
@@ -397,24 +334,20 @@ const getUserByEmail = async (req, res) => {
 
 const changePassword = async (req, res) => {
   const validatePassword = (password) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;   
     return (regex.test(password));
   }
 
   if (!validator.isEmail(req.body.email)) {
-    res.status(400).send("please enter valid email");
-    return
+    return res.status(400).send("please enter valid email");
   }
 
   if (!validatePassword(req.body.password)) {
-    res.status(400).send("Password must contain atleast one lower,one upper,one special character,one digit,no blank spaces and length must be between 8-20 characters");
-    return
+    return res.status(400).send("Password must contain atleast one lower,one upper,one special character,one digit,no blank spaces and length must be between 8-20 characters");  
   }
 
   let data = await userService.changePassword(req.body.email, req.body.password);
   res.send("password changed successfully");
-  return
 }
 
-
-module.exports = { getUser, editUser, deleteUser, getUserByEmail, changePassword };
+module.exports = { getUser, editUser, getUserByEmail, changePassword };

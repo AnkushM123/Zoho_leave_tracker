@@ -18,15 +18,12 @@ const options = {
           type: 'http',
           name: 'Authorization', 
           in: 'header',
-          description: 'Enter your API token in the format `Bearer YOUR_TOKEN_HERE`',
+          description: 'Enter your API token',
           scheme: 'bearer',
           bearerFormat: 'JWT',
         }
       }
     },
-    security: [{
-      bearerAuth: []
-    }],
   },
 
   apis: ['./apis/*.js'],

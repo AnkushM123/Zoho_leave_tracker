@@ -2,13 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-app.use(cors());
-app.use(express.json());
+const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./swagger');
+const registerRoute = require('./routes/registerRoute')
+const loginRoute = require('./routes/loginRoute');
 const userRoute = require('./routes/userRoute');
 
+app.use(cors());
+app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+app.use("/register", registerRoute);
+app.use("/login", loginRoute);
 app.use("/user", userRoute);
 
 mongoose.connect(process.env.MONGODB_URI)

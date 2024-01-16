@@ -36,15 +36,6 @@ const editUser = async function (id, _employee) {
     }
 }
 
-const deleteUser = async function (id) {
-    try {
-        const data = await userModel.deleteOne({ _id: id })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
-}
-
 const getUserByRole = async function (id) {
     try {
         const data = await userModel.find({ role: { $size: id } })
@@ -63,4 +54,4 @@ const changePassword = async function (_email, _password) {
     }
 }
 
-module.exports = { getUser, deleteUser, editUser, createUser, getUserByEmail, getUserByRole, changePassword }
+module.exports = { getUser, editUser, createUser, getUserByEmail, getUserByRole, changePassword }
