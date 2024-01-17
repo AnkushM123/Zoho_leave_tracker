@@ -5,7 +5,7 @@ let getUserByEmail = async function (email) {
 }
 
 let createUser = async function (user) {
-    return userModel.create(user)
+    return userModel.create(user);
 }
 
 module.exports = { getUserByEmail, createUser };

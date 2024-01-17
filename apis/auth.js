@@ -1,5 +1,4 @@
 require('dotenv').config();
-const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const userService = require('../core/services/user-service');
 const userModel = require('../core/schema/user-schema');
@@ -116,7 +115,7 @@ const secretKey = require('../core/constant/jwtKeys');
 */
 
 const registerUser = async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  let hashedPassword = await bcrypt.hash(req.body.password, 10);
 
   let employee = new userModel({
     name: req.body.name,
@@ -138,7 +137,7 @@ const registerUser = async (req, res) => {
 }
 
 const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
+  let token = req.headers.authorization?.split(' ')[1];
   if (!token) {
     return res.status(401).json({ error: 'Unauthorized: Token missing' });
   }
@@ -185,24 +184,21 @@ const authenticateToken = (req, res, next) => {
 
 const login = async (req, res) => {
   try {
-    if (!validator.isEmail(req.body.email)) {
-      return res.status(400).send("please enter valid email");
-    }
     let data = await userService.getUserByEmail(req.body.email);
     if (!data) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
     let isMatch = await bcrypt.compare(req.body.password, data[0].password);
-    let user = { "id": data[0]._id }
+    let user = { "id": data[0]._id };
 
     if (isMatch) {
-      const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
+      let token = jwt.sign(user, secretKey, { expiresIn: '1h' });
       return res.json({ token });
     }
   }
   catch (err) {
-    console.log(err);
+    return res.status(400).json({err});
   }
 };
 
