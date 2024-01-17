@@ -2,16 +2,17 @@ require('dotenv').config();
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const userService = require('../core/services/user-service');
-const userModel = require('../core/schema/user-schema')
+const userModel = require('../core/schema/user-schema');
 const bcrypt = require('bcrypt');
-const secretKey= require('../core/constant/jwtKeys');
-const validatePassword = require('../utils/validations');
+const secretKey = require('../core/constant/jwtKeys');
 
 /**
 * @swagger
 * /register:
 *   post:
 *     tags: [Register]
+*     security:
+*      - bearerAuth: []
 *     requestBody:
 *       required: true
 *       content:
@@ -40,12 +41,8 @@ const validatePassword = require('../utils/validations');
 *                  enum:
 *                    - male
 *                    - female
-*                roles: {
-*                   type: array,
-*                   items: {
-*                   type: string
-*                    }
-*                   }
+*                roles: 
+*                   type: array
 *                email:
 *                  type: string
 *                password:
@@ -119,32 +116,11 @@ const validatePassword = require('../utils/validations');
 */
 
 const registerUser = async (req, res) => {
-
-  if (!req.body.name.trim() || !req.body.address.trim() || !req.body.mobile.trim() || !req.body.gender.trim() || req.body.roles.length == 0 || !req.body.email.trim() || !req.body.password.trim() || req.body.age < 1) {
-    return res.status(400).send("name,address,age,mobile,gender,role,email and password are required fields");
-  }
-
-  if (req.body.age < 0 || req.body.age > 60) {
-    return res.status(400).send("age must be within 60");
-  }
-
-  if (!validator.isEmail(req.body.email)) {
-    return res.status(400).send("please enter valid email");
-  }
-
-  if (!validatePassword.validatePassword(req.body.password)) {
-    return res.status(400).send("Password must contain atleast one lower,one upper,one special character,one digit,no blank spaces and length must be between 8-20 characters");
-  }
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
-  const add = JSON.parse(req.body.address)
 
   let employee = new userModel({
     name: req.body.name,
-    address: {
-      flat_details: add.flat_details,
-      landmark: add.landmark,
-      area: add.area
-    },
+    address: req.body.address,
     age: req.body.age,
     mobile: req.body.mobile,
     gender: req.body.gender,
@@ -156,7 +132,7 @@ const registerUser = async (req, res) => {
     updatedBy: req.body.updatedBy,
     avatar: req.file.path
   })
-  employee.roles
+
   let data = await userService.createUser(employee);
   res.send(data);
 }
@@ -167,13 +143,11 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ error: 'Unauthorized: Token missing' });
   }
 
-  console.log('secretKey',secretKey);
   jwt.verify(token, secretKey, (err, user) => {
 
     if (err) {
       return res.status(403).json({ error: 'Forbidden: Invalid token' });
     }
-
     req.user = user;
     next();
   });
@@ -214,15 +188,14 @@ const login = async (req, res) => {
     if (!validator.isEmail(req.body.email)) {
       return res.status(400).send("please enter valid email");
     }
-    const data = await userService.getUserByEmail(req.body.email);
+    let data = await userService.getUserByEmail(req.body.email);
     if (!data) {
       return res.status(400).json({ message: 'Invalid username or password' });
     }
 
-    const isMatch = await bcrypt.compare(req.body.password, data[0].password);
-    const user = { "id": data[0]._id }
+    let isMatch = await bcrypt.compare(req.body.password, data[0].password);
+    let user = { "id": data[0]._id }
 
-    console.log('secretKey',secretKey);
     if (isMatch) {
       const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
       return res.json({ token });
