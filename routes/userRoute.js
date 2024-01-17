@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const user = require('../apis/user');
-const login = require('../apis/login');
+const login = require('../apis/auth');
 
 router.route("/setPassword").put(login.authenticateToken,user.changePassword);
 

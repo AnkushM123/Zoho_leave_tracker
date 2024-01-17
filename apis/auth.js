@@ -183,23 +183,21 @@ const authenticateToken = (req, res, next) => {
 */
 
 const login = async (req, res) => {
-  try {
-    let data = await userService.getUserByEmail(req.body.email);
-    if (!data) {
-      return res.status(400).json({ message: 'Invalid username or password' });
-    }
-
+  let data = await userService.getUserByEmail(req.body.email);
+  if (data.length > 0) {
     let isMatch = await bcrypt.compare(req.body.password, data[0].password);
     let user = { "id": data[0]._id };
 
     if (isMatch) {
       let token = jwt.sign(user, secretKey, { expiresIn: '1h' });
       return res.json({ token });
+    }else{
+      return res.status(400).json({ message: 'Invalid username or password' })
     }
+  } else {
+    res.status(400).json({ message: 'Invalid username or password' })
   }
-  catch (err) {
-    return res.status(400).json({err});
-  }
+
 };
 
 module.exports = { login, authenticateToken, registerUser };
