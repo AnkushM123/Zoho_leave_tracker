@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const userService = require('../core/services/user-service');
 const userModel = require('../core/schema/user-schema')
 const bcrypt = require('bcrypt');
-const secretKey= require('../core/constant/jwtKeys')
+const secretKey= require('../core/constant/jwtKeys');
+const validatePassword = require('../utils/validations');
 
 /**
 * @swagger
@@ -118,10 +119,6 @@ const secretKey= require('../core/constant/jwtKeys')
 */
 
 const registerUser = async (req, res) => {
-  const validatePassword = (password) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return (regex.test(password));
-  }
 
   if (!req.body.name.trim() || !req.body.address.trim() || !req.body.mobile.trim() || !req.body.gender.trim() || req.body.roles.length == 0 || !req.body.email.trim() || !req.body.password.trim() || req.body.age < 1) {
     return res.status(400).send("name,address,age,mobile,gender,role,email and password are required fields");
@@ -135,7 +132,7 @@ const registerUser = async (req, res) => {
     return res.status(400).send("please enter valid email");
   }
 
-  if (!validatePassword(req.body.password)) {
+  if (!validatePassword.validatePassword(req.body.password)) {
     return res.status(400).send("Password must contain atleast one lower,one upper,one special character,one digit,no blank spaces and length must be between 8-20 characters");
   }
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
