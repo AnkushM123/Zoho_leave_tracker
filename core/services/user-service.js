@@ -1,12 +1,11 @@
 const userModel = require('../schema/user-schema');
 
-const getUser = async function () {
-    try {
-        const data = await userModel.find({});
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const getUserByEmail = async function (email) {
+    return userModel.find({ email: email });
 }
 
-module.exports = { getUser};
+const createUser = async function (user) {
+    return userModel.create(user);
+}
+
+module.exports = { getUserByEmail, createUser };

@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -7,15 +6,24 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   address: {
-    flat_details: {
+    addressLine1: {
       type: String
     },
-    area: {
+    addressLine2: {
       type: String
     },
-    landmark: {
+    city: {
       type: String
-    }
+    },
+    state: {
+      type: String
+    },
+    country: {
+      type: String
+    },
+    postalCode: {
+      type: String
+    },
   },
   age: {
     type: Number,
