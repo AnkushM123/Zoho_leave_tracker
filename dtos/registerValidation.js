@@ -15,7 +15,7 @@ const registerSchema = yup.object().shape({
     createdBy: yup.string().required('createdBy is required'),
     updatedBy: yup.string().required('updatedBy is required'),
     roles: yup.string().required('Role is required'),
-    password: yup.string().required('Password is required').matches(passwordRegex,"Password must contain at least 8 characters, one uppercase,one lowercase, one number and one special case character"),
+    password: yup.string().required('Password is required').matches(passwordRegex.validatePassword,"Password must contain at least 8 characters, one uppercase,one lowercase, one number and one special case character"),
     mobile: yup.string().required('Mobile is required'),
     avatar: yup.string().required('Image is required')
 });
