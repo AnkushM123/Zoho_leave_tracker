@@ -1,10 +1,10 @@
 const userModel = require('../schema/user-schema');
 
-let getUserByEmail = async function (email) {
+const getUserByEmail = async function (email) {
     return userModel.find({ email: email });
 }
 
-let createUser = async function (user) {
+const createUser = async function (user) {
     return userModel.create(user);
 }
 

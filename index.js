@@ -14,7 +14,8 @@ app.use("/auth", authRoute);
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(async function () {
-    app.listen(3000, () => console.log("server is running on 3000"));
-    console.log("connect to db");
+    app.listen(3000);
   })
-  .catch((err) => console.log(err))
+  .catch((err) => {
+    throw Error(err);
+  });

@@ -129,8 +129,8 @@ const jwt = require('jsonwebtoken');
 const registerUser = async (req, res) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-  let employee = new userModel({
-    name: req.body.name,
+  const employee = new userModel({
+    name: req.body?.name,
     address: req.body.address,
     age: req.body.age,
     mobile: req.body.mobile,
@@ -144,7 +144,7 @@ const registerUser = async (req, res) => {
     avatar: req.file.path
   })
 
-  let data = await userService.createUser(employee);
+  const result = await userService.createUser(employee);
   res.send(data);
 }
 
@@ -179,19 +179,20 @@ const registerUser = async (req, res) => {
 */
 
 const login = async (req, res) => {
-  let data = await userService.getUserByEmail(req.body.email);
+  const data = await userService.getUserByEmail(req.body.email);
   if (data.length > 0) {
-    let isMatch = await bcrypt.compare(req.body.password, data[0].password);
-    let user = { "id": data[0]._id };
+    const isMatch = await bcrypt.compare(req.body.password, data[0].password);
+    const user = { "id": data[0]._id };
 
     if (isMatch) {
-      let token = jwt.sign(user, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
+      
       return res.json({ token });
     } else {
       return res.status(400).json({ message: 'Invalid username or password' })
     }
   } else {
-    res.status(400).json({ message: 'Invalid username or password' })
+    return res.status(400).json({ message: 'Invalid username or password' })
   }
 };
 
