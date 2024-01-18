@@ -197,7 +197,6 @@ const login = async (req, res) => {
   } else {
     res.status(400).json({ message: 'Invalid username or password' })
   }
-
 };
 
 module.exports = { login, authenticateToken, registerUser };

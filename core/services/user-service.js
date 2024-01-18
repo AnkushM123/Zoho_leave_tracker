@@ -12,16 +12,16 @@ const createUser = async function (user) {
     return userModel.create(user)
 }
 
-const editUser = async function (id, _employee) {
-    return userModel.updateOne({ _id: id }, { $set: _employee })
+const editUser = async function (id, employee) {
+    return userModel.updateOne({ _id: id }, { $set: employee })
 }
 
 const getUserByRole = async function (id) {
     return userModel.find({ role: { $size: id } })
 }
 
-const changePassword = async function (_email, _password) {
-    return userModel.findOneAndUpdate({ email: _email }, { $set: { password: _password } })
+const changePassword = async function (email, password) {
+    return userModel.findOneAndUpdate({ email: email }, { $set: { password: password } })
 }
 
 module.exports = { getUser, editUser, createUser, getUserByEmail, getUserByRole, changePassword }

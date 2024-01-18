@@ -5,7 +5,7 @@ const login = require('../apis/auth');
 
 router.route("/setPassword").put(login.authenticateToken,user.changePassword);
 
-router.route("/").get(login.authenticateToken,user.getUser)
+router.route("/").get(login.authenticateToken,user.getUser);
 
 router.route("/:id").put(login.authenticateToken,user.editUser);
 
