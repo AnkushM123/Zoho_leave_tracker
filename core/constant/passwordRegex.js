@@ -1,5 +1,3 @@
-require('dotenv').config();
+const regex=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-const passwordRegex = process.env.PASSWORD_REGEX;
-
-module.exports = passwordRegex 
+module.exports = regex

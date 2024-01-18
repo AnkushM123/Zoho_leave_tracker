@@ -4,12 +4,12 @@ const getUser = async function (id) {
     return userModel.find({ _id: id });
 }
 
-let getUserByEmail = async function (email) {
+const getUserByEmail = async function (email) {
     return userModel.find({ email: email });
 }
 
 const createUser = async function (user) {
-    return userModel.create(user)
+    return userModel.create(user);
 }
 
 const editUser = async function (id, employee) {

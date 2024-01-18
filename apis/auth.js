@@ -1,15 +1,15 @@
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 const userService = require('../core/services/user-service');
 const userModel = require('../core/schema/user-schema');
 const bcrypt = require('bcrypt');
 const secretKey = require('../core/constant/jwtKeys');
+const jwt = require('jsonwebtoken');
 
 /**
 * @swagger
-* /register:
+* /auth/register: 
 *   post:
-*     tags: [Register]
+*     tags: [Auth]
 *     security:
 *      - bearerAuth: []
 *     requestBody:
@@ -24,11 +24,17 @@ const secretKey = require('../core/constant/jwtKeys');
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *
 *                age:
@@ -72,11 +78,17 @@ const secretKey = require('../core/constant/jwtKeys');
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *                age:
 *                 type: integer
@@ -87,7 +99,7 @@ const secretKey = require('../core/constant/jwtKeys');
 *                roles:
 *                  type: array
 *                  items:
-*                     type: integer
+*                     type: string
 *                email:
 *                 type: string
 *                password:
@@ -115,10 +127,10 @@ const secretKey = require('../core/constant/jwtKeys');
 */
 
 const registerUser = async (req, res) => {
-  let hashedPassword = await bcrypt.hash(req.body.password, 10);
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-  let employee = new userModel({
-    name: req.body.name,
+  const employee = new userModel({
+    name: req.body?.name,
     address: req.body.address,
     age: req.body.age,
     mobile: req.body.mobile,
@@ -132,31 +144,15 @@ const registerUser = async (req, res) => {
     avatar: req.file.path
   })
 
-  let data = await userService.createUser(employee);
+  const result = await userService.createUser(employee);
   res.send(data);
 }
 
-const authenticateToken = (req, res, next) => {
-  let token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: Token missing' });
-  }
-
-  jwt.verify(token, secretKey, (err, user) => {
-
-    if (err) {
-      return res.status(403).json({ error: 'Forbidden: Invalid token' });
-    }
-    req.user = user;
-    next();
-  });
-};
-
 /**
 * @swagger
-* /login:
+* /auth/login:
 *   post:
-*     tags: [Login]
+*     tags: [Auth]
 *     requestBody:
 *       required: true
 *       content:
@@ -183,20 +179,21 @@ const authenticateToken = (req, res, next) => {
 */
 
 const login = async (req, res) => {
-  let data = await userService.getUserByEmail(req.body.email);
+  const data = await userService.getUserByEmail(req.body.email);
   if (data.length > 0) {
-    let isMatch = await bcrypt.compare(req.body.password, data[0].password);
-    let user = { "id": data[0]._id };
+    const isMatch = await bcrypt.compare(req.body.password, data[0].password);
+    const user = { "id": data[0]._id };
 
     if (isMatch) {
-      let token = jwt.sign(user, secretKey, { expiresIn: '1h' });
+      const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
+      
       return res.json({ token });
-    }else{
+    } else {
       return res.status(400).json({ message: 'Invalid username or password' })
     }
   } else {
-    res.status(400).json({ message: 'Invalid username or password' })
+    return res.status(400).json({ message: 'Invalid username or password' })
   }
 };
 
-module.exports = { login, authenticateToken, registerUser };
+module.exports = { login, registerUser };
