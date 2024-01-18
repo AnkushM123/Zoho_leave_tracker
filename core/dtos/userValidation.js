@@ -1,13 +1,16 @@
 const yup = require('yup');
-const passwordRegex = require('../constant/passwordRegex');
-const mobileNoRegex = require('../constant/mobileNoRegex');
+const mongoIdRegex = require('../constant/mongodbIdRegex');
+const mobileNoRegex= require('../constant/mobileNoRegex')
 
-const loginSchema = yup.object().shape({
-    email: yup.string().email('Invalid email format').required('Email is required'),
-    password: yup.string().required('Password is required')
+const mongoIdSchema = yup.object().shape({
+    id: yup.string().required().matches(mongoIdRegex, "Invalid mongodb Id"),
 });
 
-const registerSchema = yup.object().shape({
+const getUserByEmailSchema = yup.object().shape({
+    email: yup.string().email('Invalid email format').required('Email is required'),
+});
+
+const editUserSchema=yup.object().shape({
     name: yup.string().required('Name is required'),
     address: yup.object({
         addressLine1: yup.string().required('Address line 1 details are required').max(100, 'Flat details must be less than or equal to 100 characters'),
@@ -18,14 +21,9 @@ const registerSchema = yup.object().shape({
         postalCode: yup.string().required('postal Code deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
     }),
     email: yup.string().email('Invalid email format').required('Email is required'),
-    gender: yup.string().required('Gender is required'),
-    age: yup.number().required().positive().integer(),
-    managerId: yup.string().required('managerId is required'),
-    createdBy: yup.string().required('createdBy is required'),
-    updatedBy: yup.string().required('updatedBy is required'),
-    roles: yup.string().required('Role is required'),
-    password: yup.string().required('Password is required').matches(passwordRegex, "Password must contain at least 8 characters, one uppercase,one lowercase, one number and one special case character"),
     mobile: yup.string().required('Mobile is required').matches(mobileNoRegex, "Mobile number is not valid"),
-});
+    age: yup.number().required().positive().integer(),
+    updatedBy: yup.string().required('updatedBy is required'),
+})
 
-module.exports = { loginSchema, registerSchema } 
+module.exports = { mongoIdSchema, getUserByEmailSchema, editUserSchema }

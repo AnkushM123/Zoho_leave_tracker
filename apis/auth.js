@@ -4,6 +4,7 @@ const userModel = require('../core/schema/user-schema');
 const bcrypt = require('bcrypt');
 const secretKey = require('../core/constant/jwtKeys');
 const jwt = require('jsonwebtoken');
+const expireTime = require('../core/constant/expireTime')
 
 /**
 * @swagger
@@ -127,25 +128,24 @@ const jwt = require('jsonwebtoken');
 */
 
 const registerUser = async (req, res) => {
-  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+  const hashedPassword = await bcrypt.hash(req.body?.password, 10);
 
   const employee = new userModel({
     name: req.body?.name,
-    address: req.body.address,
-    age: req.body.age,
-    mobile: req.body.mobile,
-    gender: req.body.gender,
-    roles: req.body.roles.split(','),
-    email: req.body.email,
+    address: req.body?.address,
+    age: req.body?.age,
+    mobile: req.body?.mobile,
+    gender: req.body?.gender,
+    roles: req.body?.roles.split(','),
+    email: req.body?.email,
     password: hashedPassword,
-    managerId: req.body.managerId,
-    createdBy: req.body.createdBy,
-    updatedBy: req.body.updatedBy,
-    avatar: req.file.path
+    managerId: req.body?.managerId,
+    createdBy: req.body?.createdBy,
+    updatedBy: req.body?.updatedBy,
+    avatar: req.file?.path
   })
-
   const result = await userService.createUser(employee);
-  res.send(data);
+  res.send(result);
 }
 
 /**
@@ -185,15 +185,15 @@ const login = async (req, res) => {
     const user = { "id": data[0]._id };
 
     if (isMatch) {
-      const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
-      
+      const token = jwt.sign(user, secretKey, { expiresIn: expireTime });
+
       return res.json({ token });
     } else {
-      return res.status(400).json({ message: 'Invalid username or password' })
+      return res.status(400).json({ message: 'Invalid username or password' });
     }
   } else {
-    return res.status(400).json({ message: 'Invalid username or password' })
+    return res.status(400).json({ message: 'Invalid username or password' });
   }
 };
 
-module.exports = { login, registerUser };
+module.exports = { login, registerUser }; 
