@@ -1,15 +1,15 @@
 require('dotenv').config();
-const jwt = require('jsonwebtoken');
 const userService = require('../core/services/user-service');
 const userModel = require('../core/schema/user-schema');
 const bcrypt = require('bcrypt');
 const secretKey = require('../core/constant/jwtKeys');
+const jwt = require('jsonwebtoken');
 
 /**
 * @swagger
-* /register:
+* /auth/register: 
 *   post:
-*     tags: [Register]
+*     tags: [Auth]
 *     security:
 *      - bearerAuth: []
 *     requestBody:
@@ -24,11 +24,17 @@ const secretKey = require('../core/constant/jwtKeys');
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *
 *                age:
@@ -72,11 +78,17 @@ const secretKey = require('../core/constant/jwtKeys');
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *                age:
 *                 type: integer
@@ -87,7 +99,7 @@ const secretKey = require('../core/constant/jwtKeys');
 *                roles:
 *                  type: array
 *                  items:
-*                     type: integer
+*                     type: string
 *                email:
 *                 type: string
 *                password:
@@ -115,7 +127,7 @@ const secretKey = require('../core/constant/jwtKeys');
 */
 
 const registerUser = async (req, res) => {
-  let hashedPassword = await bcrypt.hash(req.body.password, 10);
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
   let employee = new userModel({
     name: req.body.name,
@@ -136,27 +148,11 @@ const registerUser = async (req, res) => {
   res.send(data);
 }
 
-const authenticateToken = (req, res, next) => {
-  let token = req.headers.authorization?.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: Token missing' });
-  }
-
-  jwt.verify(token, secretKey, (err, user) => {
-
-    if (err) {
-      return res.status(403).json({ error: 'Forbidden: Invalid token' });
-    }
-    req.user = user;
-    next();
-  });
-};
-
 /**
 * @swagger
-* /login:
+* /auth/login:
 *   post:
-*     tags: [Login]
+*     tags: [Auth]
 *     requestBody:
 *       required: true
 *       content:
@@ -191,7 +187,7 @@ const login = async (req, res) => {
     if (isMatch) {
       let token = jwt.sign(user, secretKey, { expiresIn: '1h' });
       return res.json({ token });
-    }else{
+    } else {
       return res.status(400).json({ message: 'Invalid username or password' })
     }
   } else {
@@ -199,4 +195,4 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { login, authenticateToken, registerUser };
+module.exports = { login, registerUser };

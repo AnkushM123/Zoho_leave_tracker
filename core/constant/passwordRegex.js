@@ -1,6 +1,3 @@
-const validatePassword = () => {
-    let regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;   
-    return regex;
-  }
+const regex=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-module.exports = {validatePassword} 
+module.exports = regex
