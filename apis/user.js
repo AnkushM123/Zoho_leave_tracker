@@ -173,8 +173,6 @@ const update = async (req, res) => {
 *  post:
 *     description: search an existing user using its email.
 *     tags: [User]
-*     security:
-*       - bearerAuth: []
 *     requestBody:
 *       required: true
 *       content:
@@ -269,8 +267,6 @@ const getByEmail = async (req, res) => {
 *  put:
 *     description: change password of user using userId.
 *     tags: [User]
-*     security:
-*       - bearerAuth: []
 *     parameters:
 *       - name: id
 *         in: path
