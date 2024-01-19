@@ -1,29 +1,33 @@
 const yup = require('yup');
-const mongoIdRegex = require('../constant/mongodbIdRegex');
-const mobileNoRegex= require('../constant/mobileNoRegex')
+const regex = require('../constant/regex');
+const message = require('../constant/messages');
 
 const mongoIdSchema = yup.object().shape({
-    id: yup.string().required().matches(mongoIdRegex, "Invalid mongodb Id"),
+    id: yup.string().required().matches(regex.mongoIdRegex, message.validations.invalidId),
 });
 
 const getUserByEmailSchema = yup.object().shape({
-    email: yup.string().email('Invalid email format').required('Email is required'),
+    email: yup.string().email().required(),
 });
 
-const editUserSchema=yup.object().shape({
-    name: yup.string().required('Name is required'),
+const changePasswordSchema = yup.object().shape({
+    password: yup.string().required().matches(regex.passwordRegex, message.validations.passwordValidation),
+});
+
+const editUserSchema = yup.object().shape({
+    name: yup.string().required(),
     address: yup.object({
-        addressLine1: yup.string().required('Address line 1 details are required').max(100, 'Flat details must be less than or equal to 100 characters'),
-        addressLine2: yup.string().required('Address line 2 deails are required').max(100, 'Area details must be less than or equal to 100 characters'),
-        city: yup.string().required('city deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
-        state: yup.string().required('state deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
-        country: yup.string().required('country deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
-        postalCode: yup.string().required('postal Code deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
+        addressLine1: yup.string().required().max(100),
+        addressLine2: yup.string().required().max(100),
+        city: yup.string().required().max(100),
+        state: yup.string().required().max(100),
+        country: yup.string().required().max(100),
+        postalCode: yup.string().required().max(100),
     }),
-    email: yup.string().email('Invalid email format').required('Email is required'),
-    mobile: yup.string().required('Mobile is required').matches(mobileNoRegex, "Mobile number is not valid"),
+    email: yup.string().email().required(),
+    mobile: yup.string().required().matches(regex.mobileRegex, message.validations.mobileValidation),
     age: yup.number().required().positive().integer(),
-    updatedBy: yup.string().required('updatedBy is required'),
+    updatedBy: yup.string().required(),
 })
 
-module.exports = { mongoIdSchema, getUserByEmailSchema, editUserSchema }
+module.exports = { mongoIdSchema, getUserByEmailSchema, editUserSchema, changePasswordSchema }

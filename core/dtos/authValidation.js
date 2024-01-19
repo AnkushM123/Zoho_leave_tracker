@@ -1,31 +1,31 @@
 const yup = require('yup');
-const passwordRegex = require('../constant/passwordRegex');
-const mobileNoRegex = require('../constant/mobileNoRegex');
+const regex = require('../constant/regex');
+const message = require('../constant/messages');
 
 const loginSchema = yup.object().shape({
-    email: yup.string().email('Invalid email format').required('Email is required'),
-    password: yup.string().required('Password is required')
+    email: yup.string().email().required(),
+    password: yup.string().required()
 });
 
 const registerSchema = yup.object().shape({
-    name: yup.string().required('Name is required'),
+    name: yup.string().required(),
     address: yup.object({
-        addressLine1: yup.string().required('Address line 1 details are required').max(100, 'Flat details must be less than or equal to 100 characters'),
-        addressLine2: yup.string().required('Address line 2 deails are required').max(100, 'Area details must be less than or equal to 100 characters'),
-        city: yup.string().required('city deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
-        state: yup.string().required('state deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
-        country: yup.string().required('country deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
-        postalCode: yup.string().required('postal Code deails are required').max(100, 'Landamark details must be less than or equal to 100 characters'),
+        addressLine1: yup.string().required().max(100),
+        addressLine2: yup.string().required().max(100),
+        city: yup.string().required().max(100),
+        state: yup.string().required().max(100),
+        country: yup.string().required().max(100),
+        postalCode: yup.string().required().max(100),
     }),
-    email: yup.string().email('Invalid email format').required('Email is required'),
-    gender: yup.string().required('Gender is required'),
+    email: yup.string().email().required(),
+    gender: yup.string().required(),
     age: yup.number().required().positive().integer(),
-    managerId: yup.string().required('managerId is required'),
-    createdBy: yup.string().required('createdBy is required'),
-    updatedBy: yup.string().required('updatedBy is required'),
-    roles: yup.string().required('Role is required'),
-    password: yup.string().required('Password is required').matches(passwordRegex, "Password must contain at least 8 characters, one uppercase,one lowercase, one number and one special case character"),
-    mobile: yup.string().required('Mobile is required').matches(mobileNoRegex, "Mobile number is not valid"),
+    managerId: yup.string().required(),
+    createdBy: yup.string().required(),
+    updatedBy: yup.string().required(),
+    roles: yup.string().required(),
+    password: yup.string().required().matches(regex.passwordRegex, message.validations.passwordValidation),
+    mobile: yup.string().required().matches(regex.mobileRegex, message.validations.mobileValidation),
 });
 
 module.exports = { loginSchema, registerSchema } 

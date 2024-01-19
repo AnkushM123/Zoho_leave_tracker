@@ -1,5 +1,6 @@
 const userService = require('../core/services/user-service');
 const bcrypt = require('bcrypt');
+const message = require('../core/constant/messages');
 
 /**
 *  @swagger 
@@ -75,10 +76,10 @@ const bcrypt = require('bcrypt');
 const getUser = async (req, res) => {
   const data = await userService.getUser(req.user.id);
   if (data.length > 0) {
-    res.send(data);
+    return res.send(data);
   }
   else {
-    res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ message: message.userApi.error.notFound });
   }
 }
 
@@ -159,10 +160,10 @@ const editUser = async (req, res) => {
 
   const data = await userService.editUser(req.params.id, employee);
   if (data.modifiedCount === 1) {
-    res.send({ message: "User updated successfully" });
+    return res.send({ message: message.userApi.success.updateUser });
   }
   else {
-    res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ message: message.userApi.error.notFound });
   }
 }
 
@@ -256,20 +257,26 @@ const editUser = async (req, res) => {
 const getUserByEmail = async (req, res) => {
   const user = await userService.getUserByEmail(req.body.email);
   if (user.length > 0) {
-    res.status(200).send(user);
+    return res.status(200).send(user);
   } else {
-    res.status(404).send({ message: "User not found" });
+    return res.status(404).send({ message: message.userApi.error.notFound });
   }
 }
 
 /**
 * @swagger
-*  /user/setPassword:
+*  /user/setPassword/{id}:
 *  put:
-*     description: change password of user using its email.
+*     description: change password of user using userId.
 *     tags: [User]
 *     security:
 *       - bearerAuth: []
+*     parameters:
+*       - name: id
+*         in: path
+*         required: true
+*         schema:
+*          type: string
 *     requestBody:
 *       required: true
 *       content:
@@ -277,8 +284,6 @@ const getUserByEmail = async (req, res) => {
 *           schema:
 *             type: object 
 *             properties:
-*                email:
-*                  type: string
 *                password:
 *                  type: string 
 *     responses:
@@ -301,14 +306,15 @@ const getUserByEmail = async (req, res) => {
 */
 
 const changePassword = async (req, res) => {
-  const data = await userService.getUserByEmail(req.body.email);
+  const data = await userService.getUser(req.params.id);
   if (data.length > 0) {
     const hashedPassword = await bcrypt.hash(req.body?.password, 10);
     req.body.password = hashedPassword;
-    const data = await userService.changePassword(req.body.email, req.body.password);
-    res.send({ message: "Password changed successfully" });
+    const data = await userService.changePassword(req.params.id, req.body.password);
+
+    return res.send({ message: message.userApi.success.changePassword });
   } else {
-    res.status(404).json({ message: "Cannot find user using this email" });
+    return res.status(404).json({ message: message.userApi.error.findUserById });
   }
 }
 

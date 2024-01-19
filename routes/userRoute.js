@@ -4,11 +4,9 @@ const user = require('../apis/user');
 const login = require('../middlewares/authenticateToken');
 const userMiddleware = require('../middlewares/userValidationMiddleware');
 const userValidation = require('../core/dtos/userValidation');
-const authMiddleware = require('../middlewares/authValidationMiddleware');
-const authValidation = require('../core/dtos/authValidation');
 const multer = require('multer');
 
-router.route("/setPassword").put(login.authenticateToken, authMiddleware.loginValidation(authValidation.loginSchema), user.changePassword);
+router.route("/setPassword/:id").put(login.authenticateToken, userMiddleware.mongoIdValidation(userValidation.mongoIdSchema), userMiddleware.changePasswordValidation(userValidation.changePasswordSchema), user.changePassword);
 
 router.route("/").get(login.authenticateToken, user.getUser);
 

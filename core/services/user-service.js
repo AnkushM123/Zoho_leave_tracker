@@ -16,8 +16,8 @@ const editUser = async function (id, employee) {
     return userModel.updateOne({ _id: id }, { $set: employee })
 }
 
-const changePassword = async function (email, password) {
-    return userModel.findOneAndUpdate({ email: email }, { $set: { password: password } })
+const changePassword = async function (id, password) {
+    return userModel.findOneAndUpdate({ _id: id }, { $set: { password: password } })
 }
 
 module.exports = { getUser, editUser, createUser, getUserByEmail, changePassword }

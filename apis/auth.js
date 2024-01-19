@@ -4,7 +4,8 @@ const userModel = require('../core/schema/user-schema');
 const bcrypt = require('bcrypt');
 const secretKey = require('../core/constant/jwtKeys');
 const jwt = require('jsonwebtoken');
-const expireTime = require('../core/constant/expireTime')
+const expireTime = require('../core/constant/expireTime');
+const message = require('../core/constant/messages');
 
 /**
 * @swagger
@@ -145,7 +146,7 @@ const registerUser = async (req, res) => {
     avatar: req.file?.path
   })
   const result = await userService.createUser(employee);
-  res.send(result);
+  return res.send(result);
 }
 
 /**
@@ -189,10 +190,10 @@ const login = async (req, res) => {
 
       return res.json({ token });
     } else {
-      return res.status(400).json({ message: 'Invalid username or password' });
+      return res.status(400).json({ message: message.authApi.error.invalidCredential });
     }
   } else {
-    return res.status(400).json({ message: 'Invalid username or password' });
+    return res.status(400).json({ message: message.authApi.error.invalidCredential });
   }
 };
 
