@@ -1,11 +1,14 @@
-const roleService = require('../core/services/role-service')
+const roleService = require('../core/services/role-service');
+const message = require('../core/constant/messages');
 
 /**
 * @swagger
 * /role/{id}:
 *   get:
-*     description: Retrieve role from the server using id.
+*     description: Get role using RoleId.
 *     tags: [Role]
+*     security:
+*       - bearerAuth: []
 *     parameters:
 *       - name: id
 *         in: path
@@ -23,7 +26,7 @@ const roleService = require('../core/services/role-service')
 *              type: object
 *              properties:
 *                _id:
-*                 type: integer
+*                 type: string
 *                roleName:
 *                 type: string
 *                createdAt:
@@ -46,22 +49,12 @@ const roleService = require('../core/services/role-service')
 *    
 */
 
-const getRoleById = async (req, res) => {
-  let isValidObjectId = (id) => {
-    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-
-    return objectIdRegex.test(id);
-  };
-
-  if (isValidObjectId(req.params.id)) {
-    let role = await roleService.getRoleById(req.params.id);
-    if (role.length > 0) {
-      return res.send(role);
-    } else {
-      return res.status(404).send('role name not found')
-    }
+const getById = async (req, res) => {
+  const result = await roleService.getById(req.params.id);
+  if (result.length > 0) {
+    return res.send(result);
   } else {
-    res.status(400).send("please enter valid id");
+    return res.status(404).json({ message: message.roleApi.error.notFoundById });
   }
 }
 
@@ -69,8 +62,10 @@ const getRoleById = async (req, res) => {
 *  @swagger 
 * /role:
 *   get:
-*     description: Get a list of all roles.
+*     description: Get list of all roles.
 *     tags: [Role]
+*     security:
+*       - bearerAuth: []
 *     produces:
 *       - application/json
 *     responses:
@@ -104,14 +99,14 @@ const getRoleById = async (req, res) => {
 *               example: 'No data found'
 */
 
-const getRoles = async (req, res) => {
-  let data = await roleService.getRoles();
-  if (data.length > 0) {
-    res.send(data);
+const get = async (req, res) => {
+  const result = await roleService.get();
+  if (result.length > 0) {
+    return res.send(result);
   }
   else {
-    res.status(404).json("No data found");
+    return res.status(404).json({ message: message.roleApi.error.notFound });
   }
 }
 
-module.exports = { getRoleById, getRoles }
+module.exports = { getById, get }
