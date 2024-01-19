@@ -21,6 +21,12 @@ const message = {
             "invalidId": "Invalid Id"
         }
     },
+    roleApi: {
+        error: {
+            "notFound": "Roles not found",
+            "notFoundById": "Cannot find role using this roleId",
+        }
+    }
 }
 
 module.exports = message
