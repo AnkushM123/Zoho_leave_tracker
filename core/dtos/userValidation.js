@@ -2,12 +2,19 @@ const yup = require('yup');
 const regex = require('../constant/regex');
 const message = require('../constant/messages');
 
-const loginSchema = yup.object().shape({
-    email: yup.string().email().required(),
-    password: yup.string().required()
+const mongoIdSchema = yup.object().shape({
+    id: yup.string().required().matches(regex.mongoIdRegex, message.userApi.error.invalidId),
 });
 
-const registerSchema = yup.object().shape({
+const getUserByEmailSchema = yup.object().shape({
+    email: yup.string().email().required(),
+});
+
+const changePasswordSchema = yup.object().shape({
+    password: yup.string().required().matches(regex.passwordRegex, message.userApi.error.passwordValidation),
+});
+
+const editUserSchema = yup.object().shape({
     name: yup.string().required(),
     address: yup.object({
         addressLine1: yup.string().required().max(100),
@@ -18,14 +25,9 @@ const registerSchema = yup.object().shape({
         postalCode: yup.string().required().max(100),
     }),
     email: yup.string().email().required(),
-    gender: yup.string().required(),
+    mobile: yup.string().required().matches(regex.mobileRegex, message.userApi.error.mobileValidation),
     age: yup.number().required().positive().integer().max(60),
-    managerId: yup.string().required(),
-    createdBy: yup.string().required(),
     updatedBy: yup.string().required(),
-    roles: yup.string().required(),
-    password: yup.string().required().matches(regex.passwordRegex, message.authApi.error.passwordValidation),
-    mobile: yup.string().required().matches(regex.mobileRegex, message.authApi.error.mobileValidation),
-});
+})
 
-module.exports = { loginSchema, registerSchema }  
+module.exports = { mongoIdSchema, getUserByEmailSchema, editUserSchema, changePasswordSchema }

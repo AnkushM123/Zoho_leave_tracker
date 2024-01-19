@@ -1,47 +1,23 @@
 const userModel = require('../schema/user-schema');
 
-const getUser = async function (id) {
-    try {
-        const data = await userModel.find({_id: id});
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const get = async function (id) {
+    return userModel.find({ _id: id });
 }
 
-const getUserByEmail = async function (email) {
+const getByEmail = async function (email) {
     return userModel.find({ email: email });
 }
 
-const createUser = async function (user) {
+const create = async function (user) {
     return userModel.create(user);
 }
 
-const editUser = async function (id, _employee) {
-    try {
-        const data = await userModel.updateOne({ _id: id }, { $set: _employee })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const update = async function (id, employee) {
+    return userModel.updateOne({ _id: id }, { $set: employee })
 }
 
-const getUserByRole = async function (id) {
-    try {
-        const data = await userModel.find({ role: { $size: id } })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const changePassword = async function (id, password) {
+    return userModel.findOneAndUpdate({ _id: id }, { $set: { password: password } })
 }
 
-const changePassword = async function (_email, _password) {
-    try {
-        const data = await userModel.findOneAndUpdate({ email: _email }, { $set: { password: _password } })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-module.exports = { getUser, editUser, createUser, getUserByEmail, getUserByRole, changePassword }
+module.exports = { get, update, create, getByEmail, changePassword }

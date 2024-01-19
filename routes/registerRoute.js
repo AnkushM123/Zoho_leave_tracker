@@ -7,3 +7,4 @@ const login = require('../apis/login');
 router.route("/").post(login.authenticateToken,upload.single('avatar'), registerUser.registerUser);
 
 module.exports = router; 
+
