@@ -5,22 +5,17 @@ const app = express();
 const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./swagger');
-const registerRoute = require('./routes/registerRoute')
-const loginRoute = require('./routes/loginRoute');
-const userRoute = require('./routes/userRoute');
-const roleRoute = require('./routes/roleRoute');
+const authRoute = require('./routes/authRoute');
 
 app.use(cors());
 app.use(express.json());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-app.use("/register", registerRoute);
-app.use("/login", loginRoute);
-app.use("/user", userRoute);
-app.use("/role", roleRoute);
+app.use("/auth", authRoute);
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(async function () {
-    app.listen(3000, () => console.log("server is running on 3000"));
-    console.log("connect to db");
+    app.listen(3000);
   })
-  .catch((err) => console.log(err))
+  .catch((err) => {
+    throw Error(err);
+  });
