@@ -73,10 +73,10 @@ const message = require('../core/constant/messages');
 *                 type: boolean
 */
 
-const getUser = async (req, res) => {
-  const data = await userService.getUser(req.user.id);
-  if (data.length > 0) {
-    return res.send(data);
+const get = async (req, res) => {
+  const result = await userService.get(req.user.id);
+  if (result.length > 0) {
+    return res.send(result);
   }
   else {
     return res.status(404).json({ message: message.userApi.error.notFound });
@@ -148,18 +148,18 @@ const getUser = async (req, res) => {
 *         description: Bad Request
 */
 
-const editUser = async (req, res) => {
+const update = async (req, res) => {
   const employee = ({
-    name: req.body.name,
-    address: req.body.address,
-    age: req.body.age,
-    mobile: req.body.mobile,
-    email: req.body.email,
-    updatedBy: req.body.updatedBy
+    name: req.body?.name,
+    address: req.body?.address,
+    age: req.body?.age,
+    mobile: req.body?.mobile,
+    email: req.body?.email,
+    updatedBy: req.body?.updatedBy
   })
 
-  const data = await userService.editUser(req.params.id, employee);
-  if (data.modifiedCount === 1) {
+  const result = await userService.update(req.params.id, employee);
+  if (result.modifiedCount === 1) {
     return res.send({ message: message.userApi.success.updateUser });
   }
   else {
@@ -254,10 +254,10 @@ const editUser = async (req, res) => {
 *         description: Bad Request
 */
 
-const getUserByEmail = async (req, res) => {
-  const user = await userService.getUserByEmail(req.body.email);
-  if (user.length > 0) {
-    return res.status(200).send(user);
+const getByEmail = async (req, res) => {
+  const result = await userService.getByEmail(req.body.email);
+  if (result.length > 0) {
+    return res.status(200).send(result);
   } else {
     return res.status(404).send({ message: message.userApi.error.notFound });
   }
@@ -306,11 +306,11 @@ const getUserByEmail = async (req, res) => {
 */
 
 const changePassword = async (req, res) => {
-  const data = await userService.getUser(req.params.id);
-  if (data.length > 0) {
+  const result = await userService.get(req.params.id);
+  if (result.length > 0) {
     const hashedPassword = await bcrypt.hash(req.body?.password, 10);
     req.body.password = hashedPassword;
-    const data = await userService.changePassword(req.params.id, req.body.password);
+    const result = await userService.changePassword(req.params.id, req.body.password);
 
     return res.send({ message: message.userApi.success.changePassword });
   } else {
@@ -318,4 +318,4 @@ const changePassword = async (req, res) => {
   }
 }
 
-module.exports = { getUser, editUser, getUserByEmail, changePassword };
+module.exports = { get, update, getByEmail, changePassword };

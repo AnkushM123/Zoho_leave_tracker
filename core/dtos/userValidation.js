@@ -3,7 +3,7 @@ const regex = require('../constant/regex');
 const message = require('../constant/messages');
 
 const mongoIdSchema = yup.object().shape({
-    id: yup.string().required().matches(regex.mongoIdRegex, message.validations.invalidId),
+    id: yup.string().required().matches(regex.mongoIdRegex, message.userApi.error.invalidId),
 });
 
 const getUserByEmailSchema = yup.object().shape({
@@ -11,7 +11,7 @@ const getUserByEmailSchema = yup.object().shape({
 });
 
 const changePasswordSchema = yup.object().shape({
-    password: yup.string().required().matches(regex.passwordRegex, message.validations.passwordValidation),
+    password: yup.string().required().matches(regex.passwordRegex, message.userApi.error.passwordValidation),
 });
 
 const editUserSchema = yup.object().shape({
@@ -25,8 +25,8 @@ const editUserSchema = yup.object().shape({
         postalCode: yup.string().required().max(100),
     }),
     email: yup.string().email().required(),
-    mobile: yup.string().required().matches(regex.mobileRegex, message.validations.mobileValidation),
-    age: yup.number().required().positive().integer(),
+    mobile: yup.string().required().matches(regex.mobileRegex, message.userApi.error.mobileValidation),
+    age: yup.number().required().positive().integer().max(60),
     updatedBy: yup.string().required(),
 })
 

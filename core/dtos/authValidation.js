@@ -19,13 +19,13 @@ const registerSchema = yup.object().shape({
     }),
     email: yup.string().email().required(),
     gender: yup.string().required(),
-    age: yup.number().required().positive().integer(),
+    age: yup.number().required().positive().integer().max(60),
     managerId: yup.string().required(),
     createdBy: yup.string().required(),
     updatedBy: yup.string().required(),
     roles: yup.string().required(),
-    password: yup.string().required().matches(regex.passwordRegex, message.validations.passwordValidation),
-    mobile: yup.string().required().matches(regex.mobileRegex, message.validations.mobileValidation),
+    password: yup.string().required().matches(regex.passwordRegex, message.authApi.error.passwordValidation),
+    mobile: yup.string().required().matches(regex.mobileRegex, message.authApi.error.mobileValidation),
 });
 
-module.exports = { loginSchema, registerSchema } 
+module.exports = { loginSchema, registerSchema }  
