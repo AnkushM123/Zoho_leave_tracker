@@ -1,11 +1,23 @@
 const userModel = require('../schema/user-schema');
 
-const getUserByEmail = async function (email) {
+const get = async function (id) {
+    return userModel.find({ _id: id });
+}
+
+const getByEmail = async function (email) {
     return userModel.find({ email: email });
 }
 
-const createUser = async function (user) {
+const create = async function (user) {
     return userModel.create(user);
 }
 
-module.exports = { getUserByEmail, createUser };
+const update = async function (id, employee) {
+    return userModel.updateOne({ _id: id }, { $set: employee })
+}
+
+const changePassword = async function (id, password) {
+    return userModel.findOneAndUpdate({ _id: id }, { $set: { password: password } })
+}
+
+module.exports = { get, update, create, getByEmail, changePassword }
