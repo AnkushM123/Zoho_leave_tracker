@@ -1,29 +1,34 @@
 const swaggerJSDoc = require('swagger-jsdoc');
 
 const options = {
-   definition: {
-      openapi: '3.0.0',
-      info: {
-         title: 'Zoho App',
-         version: '1.0.0'
-      },
-      servers: [
-         {
-            url: 'http://localhost:3000'
-         }
-      ],
-      securityDefinitions: {
-         bearerAuth: {
-            type: 'apiKey',
-            name: 'Authorization',
-            scheme: 'bearer',
-            in: 'header',
-         }
-      },
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Zoho App',
+      version: '1.0.0'
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000'
+      }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          name: 'Authorization', 
+          in: 'header',
+          description: 'Enter your API token',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        }
+      }
+    },
+  },
 
-   },
-   apis: ['./apis/*']
-}
+  apis: ['./apis/*.js'],
+
+};
 
 let swaggerSpecs = swaggerJSDoc(options)
 

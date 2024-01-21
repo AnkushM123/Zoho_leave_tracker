@@ -1,13 +1,19 @@
-const validator = require('validator');
-const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const userService = require('../core/services/user-service');
-const userModel = require('../core/schema/user-schema')
+const userModel = require('../core/schema/user-schema');
+const bcrypt = require('bcrypt');
+const secretKey = require('../core/constant/jwtKeys');
+const jwt = require('jsonwebtoken');
+const expireTime = require('../core/constant/expireTime');
+const message = require('../core/constant/messages');
 
 /**
 * @swagger
-* /register:
+* /auth/register: 
 *   post:
-*     tags: [Register]
+*     tags: [Auth]
+*     security:
+*      - bearerAuth: []
 *     requestBody:
 *       required: true
 *       content:
@@ -20,11 +26,17 @@ const userModel = require('../core/schema/user-schema')
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *
 *                age:
@@ -36,12 +48,8 @@ const userModel = require('../core/schema/user-schema')
 *                  enum:
 *                    - male
 *                    - female
-*                roles: {
-*                   type: array,
-*                   items: {
-*                   type: string
-*                    }
-*                   }
+*                roles: 
+*                   type: array
 *                email:
 *                  type: string
 *                password:
@@ -49,6 +57,7 @@ const userModel = require('../core/schema/user-schema')
 *                avatar:
 *                  type: string
 *                  format: binary
+*                  required: true
 *                managerId:
 *                 type: string
 *                createdBy:
@@ -72,11 +81,17 @@ const userModel = require('../core/schema/user-schema')
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *                age:
 *                 type: integer
@@ -87,7 +102,7 @@ const userModel = require('../core/schema/user-schema')
 *                roles:
 *                  type: array
 *                  items:
-*                     type: integer
+*                     type: string
 *                email:
 *                 type: string
 *                password:
@@ -114,81 +129,32 @@ const userModel = require('../core/schema/user-schema')
 *         description: Bad request
 */
 
-const registerUser = async (req, res) => {
-  const validatePassword = (password) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return (regex.test(password));
-  }
+const register = async (req, res) => {
+  const hashedPassword = await bcrypt.hash(req.body?.password, 10);
 
-  if (!req.body.name.trim() || !req.body.address.trim() || !req.body.mobile.trim() || !req.body.gender.trim() || req.body.roles.length == 0 || !req.body.email.trim() || !req.body.password.trim() || req.body.age < 1) {
-    res.status(400).send("name,address,age,mobile,gender,role,email and password are required fields");
-    return
-  }
-
-  if (req.body.age < 0 || req.body.age > 60) {
-    res.status(400).send("age must be within 60");
-    return
-
-  }
-
-  if (!validator.isEmail(req.body.email)) {
-    res.status(400).send("please enter valid email");
-    return
-  }
-
-  if (!validatePassword(req.body.password)) {
-    res.status(400).send("Password must contain atleast one lower,one upper,one special character,one digit,no blank spaces and length must be between 8-20 characters");
-    return
-  }
-  const add = JSON.parse(req.body.address)
-
-  let employee = new userModel({
-    name: req.body.name,
-    address: {
-      flat_details: add.flat_details,
-      landmark: add.landmark,
-      area: add.area
-    },
-    age: req.body.age,
-    mobile: req.body.mobile,
-    gender: req.body.gender,
-    roles: req.body.roles.split(','),
-    email: req.body.email,
-    password: req.body.password,
-    managerId: req.body.managerId,
-    createdBy: req.body.createdBy,
-    updatedBy: req.body.updatedBy,
-    avatar: req.file.path
+  const employee = new userModel({
+    name: req.body?.name,
+    address: req.body?.address,
+    age: req.body?.age,
+    mobile: req.body?.mobile,
+    gender: req.body?.gender,
+    roles: req.body?.roles.split(','),
+    email: req.body?.email,
+    password: hashedPassword,
+    managerId: req.body?.managerId,
+    createdBy: req.body?.createdBy,
+    updatedBy: req.body?.updatedBy,
+    avatar: req.file?.path
   })
-  employee.roles
-  let data = await userService.createUser(employee);
-  res.send(data);
+  const result = await userService.create(employee);
+  return res.send(result);
 }
-
-
-
-const secretKey = 'dcsgjvjcddsdhvscskhadafsrgvrsgrf';
-
-const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized: Token missing' });
-  }
-  jwt.verify(token, secretKey, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: 'Forbidden: Invalid token' });
-    }
-    req.user = user;
-    next();
-  });
-};
 
 /**
 * @swagger
-* /login:
+* /auth/login:
 *   post:
-*     tags: [Login]
+*     tags: [Auth]
 *     requestBody:
 *       required: true
 *       content:
@@ -215,16 +181,21 @@ const authenticateToken = (req, res, next) => {
 */
 
 const login = async (req, res) => {
-  const data = await userService.getUserByEmailAndPassword(req.body)
-  const user = { "email": data.email }
+  const result = await userService.getByEmail(req.body.email);
+  if (result.length > 0) {
+    const isMatch = await bcrypt.compare(req.body.password, result[0].password);
+    const user = { "id": result[0]._id };
 
-  if (data.length > 0) {
-    const token = jwt.sign(user, secretKey, { expiresIn: '1h' });
+    if (isMatch) {
+      const token = jwt.sign(user, secretKey, { expiresIn: expireTime });
 
-    res.json({ token });
+      return res.json({ token });
+    } else {
+      return res.status(400).json({ message: message.authApi.error.invalidCredential });
+    }
   } else {
-    res.status(400).send("Credential are incorrect");
+    return res.status(400).json({ message: message.authApi.error.invalidCredential });
   }
 };
 
-module.exports = { login, authenticateToken, registerUser };
+module.exports = { login, register }; 

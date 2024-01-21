@@ -1,11 +1,14 @@
-const userService = require('../core/services/user-service')
-const validator = require('validator');
+const userService = require('../core/services/user-service');
+const bcrypt = require('bcrypt');
+const message = require('../core/constant/messages');
 
 /**
 *  @swagger 
 * /user:
 *   get:
-*     description: Get a list of all users
+*     description: Get a current loggedIn user
+*     security:
+*       - bearerAuth: []
 *     tags: [User]
 *     produces:
 *       - application/json
@@ -24,11 +27,17 @@ const validator = require('validator');
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *                age:
 *                 type: integer
@@ -62,134 +71,17 @@ const validator = require('validator');
 *                 type: boolean
 *                isDeleted:
 *                 type: boolean
-*       404:
-*         description: No data
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'No data found'
 */
 
-const getUser = async (req, res) => {
-  let data = await userService.getUser();
-  if (data.length > 0) {
-    res.send(data);
-    return
+const get = async (req, res) => {
+  const result = await userService.get(req.user.id);
+  if (result.length > 0) {
+    return res.send(result);
   }
   else {
-    res.status(404).json("No data found");
+    return res.status(404).json({ message: message.userApi.error.notFound });
   }
 }
-
-
-/**
-* @swagger
-* /user/{id}:
-*   get:
-*     description: Retrieve user from the server.
-*     tags: [User]
-*     parameters:
-*       - name: id
-*         in: path
-*         required: true
-*         schema:
-*          type: string
-*     produces:
-*          - application/json   
-*     responses:
-*       200:
-*         description: Success
-*         content:
-*           application/json:
-*            schema:
-*              type: object
-*              properties:
-*                _id:
-*                 type: string
-*                name:
-*                 type: string
-*                address:
-*                 type: object
-*                 properties:
-*                   flat_details:
-*                     type: string
-*                   area:
-*                      type: string
-*                   landmark:
-*                     type: string
-*                age:
-*                 type: integer
-*                mobile:
-*                 type: string
-*                gender:
-*                 type: string
-*                roles:
-*                  type: array
-*                  items:
-*                     type: integer
-*                email:
-*                 type: string
-*                password:
-*                 type: string
-*                avatar:
-*                  type: string
-*                managerId:
-*                 type: string
-*                createdBy:
-*                 type: string
-*                updatedBy:
-*                 type: string
-*                createdAt:
-*                 type: string
-*                 format: date
-*                updatedAt:
-*                 type: string
-*                 format: date
-*                isActive:
-*                 type: boolean
-*                isDeleted:
-*                 type: boolean
-*       404:
-*         description: No data
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'No data found'
-*       400:
-*         description: Invalid Id
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'Invalid Id format'
-*    
-*/
-
-const getUserById = async (req, res) => {
-  let isValidObjectId = (id) => {
-    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-
-    return objectIdRegex.test(id);
-  };
-
-  if (isValidObjectId(req.params.id)) {
-    let employee = await userService.getUserById(req.params.id);
-    if (employee.length > 0) {
-      res.send(employee);
-      return
-    }
-    else {
-      res.status(404).json("No data found");
-      return
-    }
-  } else {
-    res.status(400).json("Invalid Id Format");
-  }
-}
-
-
 
 /**
 * @swagger
@@ -197,6 +89,8 @@ const getUserById = async (req, res) => {
 *  put:
 *     description: Update an existing user using its ID.
 *     tags: [User]
+*     security:
+*       - bearerAuth: []
 *     parameters:
 *       - name: id
 *         in: path
@@ -215,24 +109,24 @@ const getUserById = async (req, res) => {
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *                age:
 *                 type: integer
 *                mobile:
 *                 type: string
-*                gender:
-*                  type: string
-*                  enum:
-*                    - male
-*                    - female
-*                avatar:
-*                  type: string
-*                  format: binary 
+*                email:
+*                 type: string
 *                updatedBy:
 *                 type: string
 *     responses:
@@ -244,124 +138,38 @@ const getUserById = async (req, res) => {
 *               type: string
 *               example: 'user updated successfully'
 *       '404':
-*         description: No data found
+*         description: user not found
 *         content:
 *           text/plain:
 *             schema:
 *               type: string
 *               example: 'user not found'
 *       400:
-*         description: Invalid Id
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'Invalid Id format'
+*         description: Bad Request
 */
 
-const editUser = async (req, res) => {
-  let isValidObjectId = (id) => {
-    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-    return objectIdRegex.test(id);
-  };
+const update = async (req, res) => {
+  const employee = ({
+    name: req.body?.name,
+    address: req.body?.address,
+    age: req.body?.age,
+    mobile: req.body?.mobile,
+    email: req.body?.email,
+    updatedBy: req.body?.updatedBy
+  })
 
-  if (req.body.age < 0 || req.body.age > 60) {
-    res.status(400).send("age must be within 60");
-    return
-  }
-
-  if (isValidObjectId(req.params.id)) {
-    const add = JSON.parse(req.body.address)
-    let employee = ({
-      name: req.body.name,
-      address: {
-        flat_details: add.flat_details,
-        landmark: add.landmark,
-        area: add.area
-      },
-      age: req.body.age,
-      mobile: req.body.mobile,
-      gender: req.body.gender,
-      avatar: req.file.path,
-      updatedBy: req.body.updatedBy
-    })
-    const data = await userService.editUser(req.params.id, employee);
-    if (data.modifiedCount === 1) {
-      res.send("user updated successfully")
-      return
-    }
-
-    else {
-      res.status(404).json("No data found");
-      return
-    }
+  const result = await userService.update(req.params.id, employee);
+  if (result.modifiedCount === 1) {
+    return res.send({ message: message.userApi.success.updateUser });
   }
   else {
-    res.status(400).json("Invalid Id Format");
-  }
-}
-
-
-/**
-* @swagger
-* /user/{id}:
-*  delete:
-*     description: delete an existing user using its ID.
-*     tags: [User]
-*     parameters:
-*       - name: id
-*         in: path
-*         required: true
-*         schema:
-*          type: string
-*     responses:
-*       '200':
-*         description: Success
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'user deleted successfully' 
-*       '404':
-*         description: No data found
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'No data found' 
-*       400:
-*         description: Invalid Id
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'Invalid Id format'     
-*/
-
-const deleteUser = async (req, res) => {
-  let isValidObjectId = (id) => {
-    const objectIdRegex = /^[0-9a-fA-F]{24}$/;
-    return objectIdRegex.test(id);
-  };
-
-  if (isValidObjectId(req.params.id)) {
-    let data = await userService.deleteUser(req.params.id);
-    if (data.deletedCount > 0) {
-      res.send("user deleted successfully");
-      return
-    }
-    else {
-      res.status(404).json("No data found");
-      return
-    }
-  } else {
-    res.status(400).json("Invalid Id Format");
+    return res.status(404).json({ message: message.userApi.error.notFound });
   }
 }
 
 /**
 * @swagger
-*  /user/getEmail:
+*  /user/isVarifyEmail:
 *  post:
 *     description: search an existing user using its email.
 *     tags: [User]
@@ -389,11 +197,17 @@ const deleteUser = async (req, res) => {
 *                address:
 *                 type: object
 *                 properties:
-*                   flat_details:
+*                   addressLine1:
 *                     type: string
-*                   area:
+*                   addressLine2:
 *                      type: string
-*                   landmark:
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
 *                     type: string
 *                age:
 *                 type: integer
@@ -435,37 +249,30 @@ const deleteUser = async (req, res) => {
 *               type: string
 *               example: 'user not found'
 *       400:
-*         description: Invalid Email
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'please enter valid email'
+*         description: Bad Request
 */
 
-const getUserByEmail = async (req, res) => {
-
-  if (validator.isEmail(req.body.email)) {
-    const _email = await userService.getUserByEmail(req.body.email);
-    if (_email.length > 0) {
-      res.status(200).send(_email);
-      return
-    } else {
-      res.status(404).send("user not found");
-      return
-    }
+const getByEmail = async (req, res) => {
+  const result = await userService.getByEmail(req.body.email);
+  if (result.length > 0) {
+    return res.status(200).send(result);
   } else {
-    res.status(400).send("please enter valid email");
-    return
+    return res.status(404).send({ message: message.userApi.error.notFound });
   }
 }
 
 /**
 * @swagger
-*  /user/setPassword:
+*  /user/setPassword/{id}:
 *  put:
-*     description: change password of user using its email.
+*     description: change password of user using userId.
 *     tags: [User]
+*     parameters:
+*       - name: id
+*         in: path
+*         required: true
+*         schema:
+*          type: string
 *     requestBody:
 *       required: true
 *       content:
@@ -473,8 +280,6 @@ const getUserByEmail = async (req, res) => {
 *           schema:
 *             type: object 
 *             properties:
-*                email:
-*                  type: string
 *                password:
 *                  type: string 
 *     responses:
@@ -491,36 +296,22 @@ const getUserByEmail = async (req, res) => {
 *           text/plain:
 *             schema:
 *               type: string
-*               example: 'user not found'
+*               example: 'Cannot find user using this email'
 *       400:
-*         description: Invalid Email
-*         content:
-*           text/plain:
-*             schema:
-*               type: string
-*               example: 'please enter valid email'
+*         description: Bad Request
 */
 
 const changePassword = async (req, res) => {
-  const validatePassword = (password) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return (regex.test(password));
-  }
+  const result = await userService.get(req.params.id);
+  if (result.length > 0) {
+    const hashedPassword = await bcrypt.hash(req.body?.password, 10);
+    req.body.password = hashedPassword;
+    const result = await userService.changePassword(req.params.id, req.body.password);
 
-  if (!validator.isEmail(req.body.email)) {
-    res.status(400).send("please enter valid email");
-    return
+    return res.send({ message: message.userApi.success.changePassword });
+  } else {
+    return res.status(404).json({ message: message.userApi.error.findUserById });
   }
-
-  if (!validatePassword(req.body.password)) {
-    res.status(400).send("Password must contain atleast one lower,one upper,one special character,one digit,no blank spaces and length must be between 8-20 characters");
-    return
-  }
-
-  let data = await userService.changePassword(req.body.email, req.body.password);
-  res.send("password changed successfully");
-  return
 }
 
-
-module.exports = { getUser, getUserById, editUser, deleteUser, getUserByEmail, changePassword };
+module.exports = { get, update, getByEmail, changePassword };

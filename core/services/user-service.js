@@ -1,84 +1,23 @@
 const userModel = require('../schema/user-schema');
 
-const getUser = async function () {
-    try {
-        const data = await userModel.find({});
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const get = async function (id) {
+    return userModel.find({ _id: id });
 }
 
-const getUserById = async function (id) {
-    try {
-        const data = await userModel.find({ _id: id })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const getByEmail = async function (email) {
+    return userModel.find({ email: email });
 }
 
-const getUserByEmail = async function (_email) {
-    try {
-        const data = await userModel.find({ email: _email })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const create = async function (user) {
+    return userModel.create(user);
 }
 
-const getUserByEmailAndPassword = async function (user) {
-    try {
-        const data = await userModel.find({ $and: [{ email: user.email }, { password: user.password }] })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const update = async function (id, employee) {
+    return userModel.updateOne({ _id: id }, { $set: employee })
 }
 
-const createUser = async function (user) {
-    try {
-        const data = await userModel.create(user)
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const changePassword = async function (id, password) {
+    return userModel.findOneAndUpdate({ _id: id }, { $set: { password: password } })
 }
 
-const editUser = async function (id, _employee) {
-    try {
-        const data = await userModel.updateOne({ _id: id }, { $set: _employee })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-const deleteUser = async function (id) {
-    try {
-        const data = await userModel.deleteOne({ _id: id })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-const getUserByRole = async function (id) {
-    try {
-        const data = await userModel.find({ role: { $size: id } })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-const changePassword = async function (_email, _password) {
-    try {
-        const data = await userModel.findOneAndUpdate({ email: _email }, { $set: { password: _password } })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
-}
-
-module.exports = { getUser, getUserById, deleteUser, editUser, createUser, getUserByEmail, getUserByEmailAndPassword, getUserByRole, changePassword }
+module.exports = { get, update, create, getByEmail, changePassword }

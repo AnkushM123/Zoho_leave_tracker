@@ -1,21 +1,11 @@
 const roleModel = require('../schema/role-schema');
 
-const getRoleById = async function (id) {
-    try {
-        const data = await roleModel.find({ _id: id })
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const getById = async function (id) {
+    return await roleModel.find({ _id: id });
 }
 
-const getRoles = async function () {
-    try {
-        const data = await roleModel.find({});
-        return data;
-    } catch (err) {
-        console.log(err);
-    }
+const get = async function () {
+    return await roleModel.find({});
 }
 
-module.exports = { getRoleById, getRoles }
+module.exports = { getById, get }
