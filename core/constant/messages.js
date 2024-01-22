@@ -26,7 +26,24 @@ const message = {
             "notFound": "Roles not found",
             "notFoundById": "Cannot find role using this roleId",
         }
-    }
+    },
+    leaveTypeApi: {
+        error: {
+            "notFound": "leaves not found",
+            "notFoundById": "Cannot find leave using this leaveId",
+        }
+    },
+    leaveRecordApi: {
+        success: {
+            "updateRecord": "Leave record updated successfully",
+            "changePassword": "Password changed successfully"
+        },
+        error: {
+            "notFound": "Leave record not found",
+            "invalidUserId": "Invalid UserId",
+            "invalidLeaveId": "Invalid LeaveId"
+        }
+    },
 }
 
 module.exports = message
