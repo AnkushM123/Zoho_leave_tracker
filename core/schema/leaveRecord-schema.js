@@ -11,7 +11,8 @@ const leaveRecordSchema = new mongoose.Schema({
         ref: 'leaveType'
     },
     balance: {
-        type: Number
+        type: Number,
+        default:0
     },
     isActive: {
         type: Boolean,

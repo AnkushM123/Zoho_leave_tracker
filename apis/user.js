@@ -84,6 +84,87 @@ const get = async (req, res) => {
 }
 
 /**
+*  @swagger 
+* /user/getEmployee:
+*   get:
+*     description: Get a current loggedIn user
+*     security:
+*       - bearerAuth: []
+*     tags: [User]
+*     produces:
+*       - application/json
+*     responses:
+*       200:
+*         description: Success
+*         content:
+*           application/json:
+*            schema:
+*              type: object
+*              properties:
+*                _id:
+*                 type: string
+*                name:
+*                 type: string
+*                address:
+*                 type: object
+*                 properties:
+*                   addressLine1:
+*                     type: string
+*                   addressLine2:
+*                      type: string
+*                   city:
+*                     type: string
+*                   state:
+*                     type: string
+*                   country:
+*                     type: string
+*                   postalCode:
+*                     type: string
+*                age:
+*                 type: integer
+*                mobile:
+*                 type: string
+*                gender:
+*                 type: string
+*                roles:
+*                  type: array
+*                  items:
+*                     type: integer
+*                email:
+*                 type: string
+*                password:
+*                 type: string
+*                avatar:
+*                  type: string
+*                managerId:
+*                 type: string
+*                createdBy:
+*                 type: string
+*                updatedBy:
+*                 type: string
+*                createdAt:
+*                 type: string
+*                 format: date
+*                updatedAt:
+*                 type: string
+*                 format: date
+*                isActive:
+*                 type: boolean
+*                isDeleted:
+*                 type: boolean
+*/
+
+const getEmployee = async (req, res) => {
+  const result = await userService.getEmployee(req.user.id);
+  if (result.length > 0) {
+    return res.send(result);
+  }
+  else {
+    return res.status(404).json({ message: message.userApi.error.notFound });
+  }
+}
+
+/**
 * @swagger
 *  /user/{id}:
 *  put:
@@ -314,4 +395,4 @@ const changePassword = async (req, res) => {
   }
 }
 
-module.exports = { get, update, getByEmail, changePassword };
+module.exports = { get, update, getByEmail, changePassword, getEmployee };

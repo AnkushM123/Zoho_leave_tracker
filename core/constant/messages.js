@@ -44,6 +44,18 @@ const message = {
             "invalidLeaveId": "Invalid LeaveId"
         }
     },
+    leaveRequestApi: {
+        success: {
+            "updateRecord": "Leave request updated successfully",
+            "changeStatus": "Status changed successfully"
+        },
+        error: {
+            "notFound": "Leave request not found",
+            "invalidUserId": "Invalid UserId",
+            "invalidManagerId": "Invalid ManagerId",
+            "invalidRequestId": "Invalid RequestId"
+        }
+    }
 }
 
 module.exports = message

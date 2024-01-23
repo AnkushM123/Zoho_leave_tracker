@@ -14,4 +14,6 @@ router.route("/:id").put(login.authenticateToken, multer().single("user"), userM
 
 router.route("/isVarifyEmail").post(userMiddleware.getUserByEmailValidation(userValidation.getUserByEmailSchema), user.getByEmail);
 
+router.route("/getEmployee").get(login.authenticateToken, user.getEmployee);
+
 module.exports = router    
