@@ -145,10 +145,10 @@ const register = async (req, res) => {
     createdBy: req.body?.createdBy,
     updatedBy: req.body?.updatedBy,
     avatar: req.file?.path
-  })
+  })  
   const result = await userService.create(employee);
   return res.send(result);
-}
+} 
 
 /**
 * @swagger
@@ -182,10 +182,21 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const result = await userService.getByEmail(req.body.email);
+ 
   if (result.length > 0) {
+    let role='';
+    if (result[0].roles.includes("658eacbb510f63f754e68d02")) {
+      role='Admin';
+  } else {
+      if (result[0].roles.includes("658eac9e510f63f754e68cfe")) {
+          role='Manager';
+      } else {
+          role='Employee';
+      }
+    }
     const isMatch = await bcrypt.compare(req.body.password, result[0].password);
-    const user = { "id": result[0]._id };
-
+    const user = { "id": result[0]._id, role: role };
+ 
     if (isMatch) {
       const token = jwt.sign(user, secretKey, { expiresIn: expireTime });
 

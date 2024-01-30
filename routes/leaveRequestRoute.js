@@ -16,4 +16,6 @@ router.route("/userRequest/:userId").get(login.authenticateToken, leaveRequestMi
 
 router.route("/:managerId").get(login.authenticateToken, leaveRequestMiddleware.getByManagerIdValidation(leaveRequestValidation.getByManagerIdSchema), leaveRequest.getByManagerId)
 
+router.route("/getRequest/:requestId").get(login.authenticateToken, leaveRequest.getByRequestId)
+
 module.exports = router

@@ -10,7 +10,9 @@ router.route("/setPassword/:id").put(userMiddleware.mongoIdValidation(userValida
 
 router.route("/").get(login.authenticateToken, user.get);
 
-router.route("/:id").put(login.authenticateToken, multer().single("user"), userMiddleware.mongoIdValidation(userValidation.mongoIdSchema), userMiddleware.editUserValidation(userValidation.editUserSchema), user.update);
+router.route("/getUser/:id").get(login.authenticateToken, user.getUser);
+
+router.route("/:id").put(multer().single('address'), login.authenticateToken, userMiddleware.mongoIdValidation(userValidation.mongoIdSchema), userMiddleware.editUserValidation(userValidation.editUserSchema), user.update);
 
 router.route("/isVarifyEmail").post(userMiddleware.getUserByEmailValidation(userValidation.getUserByEmailSchema), user.getByEmail);
 

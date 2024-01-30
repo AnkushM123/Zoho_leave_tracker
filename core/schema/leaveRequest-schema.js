@@ -5,16 +5,18 @@ const leaveRequestSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users'
   },
-  name: {
-    type: String
-  },
   managerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users'
   },
-  leaveType: {
+  leaveId: {
     type: String,
-    enum: ['compensantoryOff', 'forgotIdCard', 'outOfOfficeOnDuty', 'paidLeave', 'unpaidLeave', 'workFromHome'],
+  },
+  name: {
+    type: String,
+  },
+  leaveName: {
+    type: String,
   },
   reasonForLeave: {
     type: String
@@ -24,6 +26,9 @@ const leaveRequestSchema = new mongoose.Schema({
   },
   endDate: {
     type: Date
+  },
+  totalDays:{
+    type: Number
   },
   isActive: {
     type: Boolean,

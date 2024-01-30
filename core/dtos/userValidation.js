@@ -21,7 +21,7 @@ const editUserSchema = yup.object().shape({
         addressLine2: yup.string().required().max(100),
         city: yup.string().required().max(100),
         state: yup.string().required().max(100),
-        country: yup.string().required().max(100),
+        country: yup.string().required().max(100), 
         postalCode: yup.string().required().max(100),
     }),
     email: yup.string().email().required(),
@@ -30,4 +30,4 @@ const editUserSchema = yup.object().shape({
     updatedBy: yup.string().required(),
 })
 
-module.exports = { mongoIdSchema, getUserByEmailSchema, editUserSchema, changePasswordSchema }
+module.exports = { mongoIdSchema, getUserByEmailSchema, editUserSchema, changePasswordSchema }   

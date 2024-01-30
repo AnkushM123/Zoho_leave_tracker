@@ -70,7 +70,7 @@ const getAllRecord = async (req, res) => {
 
 /**
 *  @swagger 
-* /leaveRecord/getParticlarRecord:
+* /leaveRecord/getParticularRecord:
 *   post:
 *     description: Get a paricular leave record of user
 *     tags: [LeaveRecord]
@@ -157,6 +157,8 @@ const getparticularRecord = async (req, res) => {
 *                 type: string
 *                balance:
 *                 type: number
+*                booked:
+*                 type: number
 *                createdBy:
 *                 type: string
 *                updatedBy:
@@ -199,7 +201,8 @@ const createLeaveRecord = async (req, res) => {
         leaveId: req.body?.leaveId,
         createdBy: req.body?.createdBy,
         updatedBy: req.body?.updatedBy,
-        balance: req.body?.balance
+        balance: req.body?.balance,
+        booked: req.body?.booked
     })
     const result = await leaveRecordService.createLeaveRecord(leaveRecord);
     return res.send(result);
@@ -230,6 +233,8 @@ const createLeaveRecord = async (req, res) => {
 *                  type: string
 *                balance:
 *                  type: number
+*                booked:
+*                 type: number
 *                updatedBy:
 *                  type: string
 *     responses:
@@ -256,7 +261,8 @@ const editLeaveRecord = async (req, res) => {
     if (data.length > 0) {
         const leaveRecord = ({
             balance: req.body?.balance,
-            updatedBy: req.body?.updatedBy
+            updatedBy: req.body?.updatedBy,
+            booked: req.body?.booked,
         })
         const result = await leaveRecordService.editLeaveRecord(req.body?.userId, req.params.leaveId, leaveRecord);
         if (result.modifiedCount === 1) {

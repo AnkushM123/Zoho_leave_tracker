@@ -81,6 +81,83 @@ const getByManagerId = async (req, res) => {
 
 /**
 * @swagger
+* /leaveRequest/getRequest/{requestId}:
+*   get:
+*     description: Retrieve leave requests using requestId.
+*     tags: [LeaveRequest]
+*     security:
+*       - bearerAuth: []
+*     parameters:
+*       - name: requestId
+*         in: path
+*         required: true
+*         schema:
+*          type: string
+*     produces:
+*          - application/json   
+*     responses:
+*       200:
+*         description: Success
+*         content:
+*           application/json:
+*            schema:
+*              type: object
+*              properties:
+*                userId:
+*                 type: string
+*                managerId:
+*                 type: string
+*                name:
+*                 type: string
+*                leaveType:
+*                  type: string
+*                reasonForLeave:
+*                 type: string
+*                status:
+*                  type: string
+*                startDate:
+*                 type: string
+*                 format: date
+*                endDate:
+*                 type: string
+*                 format: date
+*                createdBy:
+*                 type: string
+*                updatedBy:
+*                 type: string
+*                createdAt:
+*                 type: string
+*                 format: date
+*                updatedAt:
+*                 type: string
+*                 format: date
+*                isActive:
+*                 type: boolean
+*                isDeleted:
+*                 type: boolean
+*       404:
+*         description: No data
+*         content:
+*           text/plain:
+*             schema:
+*               type: string
+*               example: 'No data found'
+*       400:
+*         description: Bad Request
+*    
+*/
+
+const getByRequestId = async (req, res) => {
+    const result = await leaveRequestService.getByRequestId(req.params.requestId);
+    if (result.length > 0) {
+        return res.send(result);
+    } else {
+        return res.status(404).send({message:message.leaveRequestApi.error.notFound});
+    }
+}
+
+/**
+* @swagger
 * /leaveRequest/userRequest/{userId}:
 *   get:
 *     description: Retrieve leave requests using userId.
@@ -175,25 +252,22 @@ const getByUserId = async (req, res) => {
 *                 type: string
 *                managerId:
 *                 type: string
-*                name:
-*                 type: string
-*                leaveType:
+*                leaveId:
 *                  type: string
-*                  enum:
-*                    - compensantoryOff
-*                    - forgotIdCard
-*                    - outOfOfficeOnDuty
-*                    - paidLeave
-*                    - unpaidLeave
-*                    - workFromHome
+*                name:
+*                  type: string
+*                leaveName:
+*                  type: string
 *                reasonForLeave:
-*                 type: string'
+*                 type: string
 *                startDate:
 *                 type: string
 *                 format: date
 *                endDate:
 *                 type: string
 *                 format: date
+*                totalDays:
+*                 type: number
 *                createdBy:
 *                 type: string
 *                updatedBy:
@@ -248,10 +322,12 @@ const applyLeave = async (req, res) => {
     const leaveRequest = new leaveRequestModel({
         userId: req.body?.userId,
         managerId: req.body?.managerId,
+        leaveId: req.body?.leaveId,
         name: req.body?.name,
-        leaveType: req.body?.leaveType,
+        leaveName:req.body?.leaveName,
         startDate: req.body?.startDate,
         endDate: req.body?.endDate, 
+        totalDays: req.body?.totalDays,
         createdBy: req.body?.createdBy,
         updatedBy: req.body?.updatedBy,
         reasonForLeave: req.body?.reasonForLeave,
@@ -396,4 +472,4 @@ const changeStatus = async (req, res) => {
     }
 }
 
-module.exports = { getByManagerId, applyLeave, getByUserId, updateRequest, changeStatus };
+module.exports = { getByManagerId, applyLeave, getByUserId, updateRequest, changeStatus,getByRequestId };

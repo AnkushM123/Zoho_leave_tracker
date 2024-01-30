@@ -15,6 +15,7 @@ const leaveRequest=require('./routes/leaveRequestRoute');
 app.use(cors());
 app.use(express.json());
 app.use('/images', express.static('images'));
+app.use(express.urlencoded({ extended: true }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use("/auth", authRoute);
 app.use("/user", userRoute);

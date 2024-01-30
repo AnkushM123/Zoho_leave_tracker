@@ -17,8 +17,7 @@ const getByUserIdSchema = yup.object().shape({
 const applyLeaveSchema = yup.object().shape({
     userId: yup.string().required().matches(regex.mongoIdRegex, message.leaveRequestApi.error.invalidUserId),
     managerId: yup.string().required().matches(regex.mongoIdRegex, message.leaveRequestApi.error.invalidManagerId),
-    name: yup.string().required(),
-    leaveType: yup.string().required(),
+    leaveId: yup.string().required(),
     reasonForLeave: yup.string().required(),
     startDate: yup.string().required(),
     endDate: yup.string().required(),
