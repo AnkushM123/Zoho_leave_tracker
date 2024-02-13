@@ -18,7 +18,6 @@ const applyLeaveSchema = yup.object().shape({
     userId: yup.string().required().matches(regex.mongoIdRegex, message.leaveRequestApi.error.invalidUserId),
     managerId: yup.string().required().matches(regex.mongoIdRegex, message.leaveRequestApi.error.invalidManagerId),
     leaveId: yup.string().required(),
-    reasonForLeave: yup.string().required(),
     startDate: yup.string().required(),
     endDate: yup.string().required(),
     createdBy: yup.string().required(),
@@ -35,7 +34,7 @@ const updateRequestSchema = yup.object().shape({
 });
 
 const changeStatusSchema = yup.object().shape({
-    status: yup.string().required(),
+    status: yup.number().required(),
 });
 
 module.exports = { mongoIdSchema, getByManagerIdSchema, getByUserIdSchema, applyLeaveSchema, updateRequestSchema, changeStatusSchema }

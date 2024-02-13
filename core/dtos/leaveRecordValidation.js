@@ -18,14 +18,14 @@ const userParticularRecordSchema = yup.object().shape({
 const createRecordSchema = yup.object().shape({
     userId: yup.string().required().matches(regex.mongoIdRegex, message.leaveRecordApi.error.invalidUserId),
     leaveId: yup.string().required().matches(regex.mongoIdRegex, message.leaveRecordApi.error.invalidLeaveId),
-    balance: yup.number().required().min(0),
+    balance: yup.number().required(),
     createdBy: yup.string().required(),
     updatedBy: yup.string().required(),
 });
 
 const editLeaveRecordSchema = yup.object().shape({
     userId: yup.string().required().matches(regex.mongoIdRegex, message.leaveRecordApi.error.invalidUserId),
-    balance: yup.number().required().min(0),
+    balance: yup.number().required(),
     updatedBy: yup.string().required(),
 });
 

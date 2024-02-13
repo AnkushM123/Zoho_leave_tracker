@@ -22,6 +22,8 @@ const message = require('../core/constant/messages');
 *              properties:
 *                _id:
 *                 type: string
+*                employeeId:
+*                 type: string
 *                name:
 *                 type: string
 *                address:
@@ -39,8 +41,9 @@ const message = require('../core/constant/messages');
 *                     type: string
 *                   postalCode:
 *                     type: string
-*                age:
-*                 type: integer
+*                dateOfBirth:
+*                 type: string
+*                 format: date
 *                mobile:
 *                 type: string
 *                gender:
@@ -48,7 +51,7 @@ const message = require('../core/constant/messages');
 *                roles:
 *                  type: array
 *                  items:
-*                     type: integer
+*                     type: string
 *                email:
 *                 type: string
 *                password:
@@ -87,7 +90,7 @@ const get = async (req, res) => {
 *  @swagger 
 * /user/getUser/{id}:
 *   get:
-*     description: Get a current loggedIn user
+*     description: Get a user by user Id
 *     security:
 *       - bearerAuth: []
 *     parameters:
@@ -109,6 +112,8 @@ const get = async (req, res) => {
 *              properties:
 *                _id:
 *                 type: string
+*                employeeId:
+*                 type: string
 *                name:
 *                 type: string
 *                address:
@@ -126,8 +131,9 @@ const get = async (req, res) => {
 *                     type: string
 *                   postalCode:
 *                     type: string
-*                age:
-*                 type: integer
+*                dateOfBirth:
+*                 type: string
+*                 format: date
 *                mobile:
 *                 type: string
 *                gender:
@@ -135,7 +141,7 @@ const get = async (req, res) => {
 *                roles:
 *                  type: array
 *                  items:
-*                     type: integer
+*                     type: string
 *                email:
 *                 type: string
 *                password:
@@ -174,7 +180,7 @@ const getUser = async (req, res) => {
 *  @swagger 
 * /user/getEmployee:
 *   get:
-*     description: Get a current loggedIn user
+*     description: Get a list of all employees working under manager
 *     security:
 *       - bearerAuth: []
 *     tags: [User]
@@ -189,6 +195,8 @@ const getUser = async (req, res) => {
 *              type: object
 *              properties:
 *                _id:
+*                 type: string
+*                employeeId:
 *                 type: string
 *                name:
 *                 type: string
@@ -207,8 +215,9 @@ const getUser = async (req, res) => {
 *                     type: string
 *                   postalCode:
 *                     type: string
-*                age:
-*                 type: integer
+*                dateOfBirth:
+*                 type: string
+*                 format: date
 *                mobile:
 *                 type: string
 *                gender:
@@ -216,7 +225,7 @@ const getUser = async (req, res) => {
 *                roles:
 *                  type: array
 *                  items:
-*                     type: integer
+*                     type: string
 *                email:
 *                 type: string
 *                password:
@@ -289,11 +298,11 @@ const getEmployee = async (req, res) => {
 *                     type: string
 *                   postalCode:
 *                     type: string
-*                age:
-*                 type: integer
+*                avatar:
+*                  type: string
+*                  format: binary
+*                  required: true
 *                mobile:
-*                 type: string
-*                email:
 *                 type: string
 *                updatedBy:
 *                 type: string
@@ -320,9 +329,8 @@ const update = async (req, res) => {
   const employee = ({
     name: req.body?.name,
     address: req.body?.address,
-    age: req.body?.age,
     mobile: req.body?.mobile,
-    email: req.body?.email,
+    avatar: req.file?.path,
     updatedBy: req.body?.updatedBy
   })
 
@@ -360,6 +368,8 @@ const update = async (req, res) => {
 *              properties:
 *                _id:
 *                 type: string
+*                employeeId:
+*                 type: string
 *                name:
 *                 type: string
 *                address:
@@ -377,8 +387,9 @@ const update = async (req, res) => {
 *                     type: string
 *                   postalCode:
 *                     type: string
-*                age:
-*                 type: integer
+*                dateOfBirth:
+*                 type: string
+*                 format: date
 *                mobile:
 *                 type: string
 *                gender:
@@ -386,7 +397,7 @@ const update = async (req, res) => {
 *                roles:
 *                  type: array
 *                  items:
-*                     type: integer
+*                     type: string
 *                email:
 *                 type: string
 *                password:
@@ -482,4 +493,76 @@ const changePassword = async (req, res) => {
   }
 }
 
-module.exports = { get, update, getByEmail, changePassword, getEmployee,getUser };
+/**
+* @swagger
+*  /user/changePassword/{id}:
+*  put:
+*     description: varify old password of user and set new password.
+*     tags: [User]
+*     security:
+*       - bearerAuth: []
+*     parameters:
+*       - name: id
+*         in: path
+*         required: true
+*         schema:
+*          type: string
+*     requestBody:
+*       required: true
+*       content:
+*          application/json:
+*           schema:
+*             type: object 
+*             properties:
+*                oldPassword:
+*                  type: string 
+*                newPassword:
+*                  type: string
+*     responses:
+*       '200':
+*         description: Success
+*         content:
+*           text/plain:
+*             schema:
+*               type: string
+*               example: 'Password changed successfully'
+*       '404':
+*         description: No data found
+*         content:
+*           text/plain:
+*             schema:
+*               type: string
+*               example: 'Cannot find user'
+*       400:
+*         description: Bad Request
+*/
+
+const confirmOldPassword = async (req,res) => {
+  const result = await userService.get(req.params.id);
+  if (result.length > 0) {
+    const isMatch = await bcrypt.compare(req.body?.oldPassword, result[0].password);
+    if(isMatch){
+      const hashedPassword = await bcrypt.hash(req.body?.newPassword, 10);
+      req.body.newPassword = hashedPassword;
+      const result = await userService.changePassword(req.params.id, req.body.newPassword);
+      return res.send({ message: message.userApi.success.changePassword });
+    }else{
+        res.status(400).json({message: message.userApi.error.passwordNotMatched});
+      }
+  }
+  else {
+    return res.status(404).json({ message: message.userApi.error.notFound });
+  }
+}
+
+const getByRole = async (req, res) => {
+  const result = await userService.getByRole(req.params.id);
+  if (result.length > 0) {
+    return res.send(result);
+  }
+  else {
+    return res.status(404).json({ message: message.userApi.error.notFound });
+  }
+}
+
+module.exports = { get, update, getByEmail, changePassword, getEmployee, getUser, confirmOldPassword, getByRole };

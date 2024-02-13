@@ -9,16 +9,19 @@ const leaveRequestSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users'
   },
+  employeeId:{
+    type: Number
+  },
   leaveId: {
     type: String,
   },
   name: {
     type: String,
   },
-  leaveName: {
-    type: String,
-  },
   reasonForLeave: {
+    type: String
+  },
+  comment: {
     type: String
   },
   startDate: {
@@ -42,15 +45,13 @@ const leaveRequestSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true
   },
-  updatedBy: {
+  updatedBy: { 
     type: mongoose.Schema.Types.ObjectId,
     required: true
   },
-  status: {
-    type: String,
-    enum: ['Pending', 'Approved', 'Rejected'],
-    default: 'Pending'
-  }
+  status: { 
+    type: Number, 
+    enum: [0, 1, 2, 3] }
 }, {
   timestamps: true
 }

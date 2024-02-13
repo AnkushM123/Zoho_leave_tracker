@@ -24,9 +24,7 @@ const editUserSchema = yup.object().shape({
         country: yup.string().required().max(100), 
         postalCode: yup.string().required().max(100),
     }),
-    email: yup.string().email().required(),
     mobile: yup.string().required().matches(regex.mobileRegex, message.userApi.error.mobileValidation),
-    age: yup.number().required().positive().integer().max(60),
     updatedBy: yup.string().required(),
 })
 

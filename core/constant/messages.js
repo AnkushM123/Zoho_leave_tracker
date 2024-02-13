@@ -18,7 +18,8 @@ const message = {
             "findUserById": "Cannot find user using this userId",
             "passwordValidation": "Password must contain at least 8 characters, one uppercase,one lowercase, one number and one special case character",
             "mobileValidation": "Mobile number is not valid",
-            "invalidId": "Invalid Id"
+            "invalidId": "Invalid Id",
+            "passwordNotMatched": "Old password not matched"
         }
     },
     roleApi: {

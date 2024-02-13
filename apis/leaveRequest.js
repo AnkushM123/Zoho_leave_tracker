@@ -70,8 +70,8 @@ const message=require('../core/constant/messages');
 *    
 */
 
-const getByManagerId = async (req, res) => {
-    const result = await leaveRequestService.getByManagerId(req.params.managerId);
+const getByManagerIdAndStatus = async (req, res) => {
+    const result = await leaveRequestService.getByManagerIdAndStatus(req.params.managerId, req.body.status);
     if (result.length > 0) {
         return res.send(result);
     } else {
@@ -254,9 +254,13 @@ const getByUserId = async (req, res) => {
 *                 type: string
 *                leaveId:
 *                  type: string
+*                employeeId:
+*                 type: number
 *                name:
 *                  type: string
 *                leaveName:
+*                  type: string
+*                comment:
 *                  type: string
 *                reasonForLeave:
 *                 type: string
@@ -320,19 +324,21 @@ const getByUserId = async (req, res) => {
 
 const applyLeave = async (req, res) => {
     const leaveRequest = new leaveRequestModel({
+        employeeId: req.body?.employeeId,
         userId: req.body?.userId,
         managerId: req.body?.managerId,
         leaveId: req.body?.leaveId,
         name: req.body?.name,
-        leaveName:req.body?.leaveName,
+        comment:req.body?.comment,
         startDate: req.body?.startDate,
+        status: req.body?.status,
         endDate: req.body?.endDate, 
         totalDays: req.body?.totalDays,
         createdBy: req.body?.createdBy,
         updatedBy: req.body?.updatedBy,
         reasonForLeave: req.body?.reasonForLeave,
     })
-
+ 
     const result = await leaveRequestService.applyLeave(leaveRequest);
     return res.send(result);
 }
@@ -354,31 +360,12 @@ const applyLeave = async (req, res) => {
 *     requestBody:
 *       required: true
 *       content:
-*          multipart/form-data:
+*          application/json:
 *           schema:
 *             type: object
 *             properties:
-*                leaveType:
+*                comment:
 *                  type: string
-*                  enum:
-*                    - compensantoryOff
-*                    - forgotIdCard
-*                    - outOfOfficeOnDuty
-*                    - paidLeave
-*                    - unpaidLeave
-*                    - workFromHome
-*                reasonForLeave:
-*                 type: string
-*                startDate:
-*                 type: string
-*                 format: date
-*                endDate:
-*                 type: string
-*                 format: date
-*                createdBy:
-*                 type: string
-*                updatedBy:
-*                 type: string 
 *     responses:
 *       '200':
 *         description: Success
@@ -400,12 +387,7 @@ const applyLeave = async (req, res) => {
 
 const updateRequest = async (req, res) => {
     const leaveRequest = ({
-        leaveType: req.body?.leaveType,
-        startDate: req.body?.startDate,
-        endDate: req.body?.endDate,
-        createdBy: req.body?.createdBy,
-        updatedBy: req.body?.updatedBy,
-        reasonForLeave: req.body?.reasonForLeave
+      comment:req.body?.comment
     })
 
     const result = await leaveRequestService.updateRequest(req.params.requestId, leaveRequest);
@@ -472,4 +454,98 @@ const changeStatus = async (req, res) => {
     }
 }
 
-module.exports = { getByManagerId, applyLeave, getByUserId, updateRequest, changeStatus,getByRequestId };
+const getRequestByStatus = async (req, res) => {
+    const result = await leaveRequestService.getRequestByStatus(req.params.userId);
+    if (result.length > 0) {
+        return res.send(result);
+    } else {
+        return res.status(404).send({message:message.leaveRequestApi.error.notFound});
+    }
+}
+
+/**
+* @swagger
+* /leaveRequest/{managerId}:
+*   get:
+*     description: Retrieve leave requests using managerId.
+*     tags: [LeaveRequest]
+*     security:
+*       - bearerAuth: []
+*     parameters:
+*       - name: managerId
+*         in: path
+*         required: true
+*         schema:
+*          type: string
+*     produces:
+*          - application/json   
+*     responses:
+*       200:
+*         description: Success
+*         content:
+*           application/json:
+*            schema:
+*              type: object
+*              properties:
+*                userId:
+*                 type: string
+*                managerId:
+*                 type: string
+*                employeeId:
+*                 type: string
+*                leaveId:
+*                 type: string
+*                name:
+*                 type: string
+*                leaveName:
+*                  type: string
+*                reasonForLeave:
+*                 type: string
+*                comment:
+*                  type: string
+*                status:
+*                  type: string
+*                startDate:
+*                 type: string
+*                 format: date
+*                endDate:
+*                 type: string
+*                 format: date
+*                totalDays:
+*                  type: number
+*                createdBy:
+*                 type: string
+*                updatedBy:
+*                 type: string
+*                createdAt:
+*                 type: string
+*                 format: date
+*                updatedAt:
+*                 type: string
+*                 format: date
+*                isActive:
+*                 type: boolean
+*                isDeleted:
+*                 type: boolean
+*       404:
+*         description: No data
+*         content:
+*           text/plain:
+*             schema:
+*               type: string
+*               example: 'No data found'
+*       400:
+*         description: Bad Request
+*    
+*/
+
+const getByManagerId = async (req, res) => {
+    const result = await leaveRequestService.getByManagerId(req.params.managerId);
+    if (result.length > 0) {
+        return res.send(result);
+    } else {
+        return res.status(404).send({message:message.leaveRequestApi.error.notFound});
+    }
+}
+
+module.exports = { getByManagerIdAndStatus, applyLeave, getByUserId, updateRequest, changeStatus, getByRequestId, getRequestByStatus, getByManagerId };

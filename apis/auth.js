@@ -39,8 +39,8 @@ const message = require('../core/constant/messages');
 *                   postalCode:
 *                     type: string
 *
-*                age:
-*                 type: integer
+*                dateOfBirth:
+*                 type: date
 *                mobile:
 *                 type: string
 *                gender:
@@ -76,6 +76,8 @@ const message = require('../core/constant/messages');
 *              properties:
 *                _id:
 *                 type: string
+*                employeeId:
+*                 type: string
 *                name:
 *                 type: string
 *                address:
@@ -93,8 +95,9 @@ const message = require('../core/constant/messages');
 *                     type: string
 *                   postalCode:
 *                     type: string
-*                age:
-*                 type: integer
+*                dateOfBirth:
+*                 type: string
+*                 format: date
 *                mobile:
 *                 type: string
 *                gender:
@@ -130,12 +133,13 @@ const message = require('../core/constant/messages');
 */
 
 const register = async (req, res) => {
+  const maxEmployeeId = await userService.getMaxEmployeeId();
   const hashedPassword = await bcrypt.hash(req.body?.password, 10);
-
   const employee = new userModel({
+    employeeId: parseInt(maxEmployeeId[0].employeeId) + 1,
     name: req.body?.name,
     address: req.body?.address,
-    age: req.body?.age,
+    dateOfBirth: req.body?.dateOfBirth,
     mobile: req.body?.mobile,
     gender: req.body?.gender,
     roles: req.body?.roles.split(','),
@@ -145,10 +149,10 @@ const register = async (req, res) => {
     createdBy: req.body?.createdBy,
     updatedBy: req.body?.updatedBy,
     avatar: req.file?.path
-  })  
+  })
   const result = await userService.create(employee);
   return res.send(result);
-} 
+}
 
 /**
 * @swagger
@@ -182,21 +186,21 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const result = await userService.getByEmail(req.body.email);
- 
+
   if (result.length > 0) {
-    let role='';
+    let role = '';
     if (result[0].roles.includes("658eacbb510f63f754e68d02")) {
-      role='Admin';
-  } else {
+      role = 'Admin';
+    } else {
       if (result[0].roles.includes("658eac9e510f63f754e68cfe")) {
-          role='Manager';
+        role = 'Manager';
       } else {
-          role='Employee';
+        role = 'Employee';
       }
     }
     const isMatch = await bcrypt.compare(req.body.password, result[0].password);
     const user = { "id": result[0]._id, role: role };
- 
+
     if (isMatch) {
       const token = jwt.sign(user, secretKey, { expiresIn: expireTime });
 
