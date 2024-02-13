@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./swagger');
 const authRoute = require('./routes/authRoute');
-const userRoute = require('./routes/userRoute')
+const userRoute = require('./routes/userRoute');
 const roleRoute = require('./routes/roleRoute');
 const leaveType = require('./routes/leaveTypeRoute');
 const leaveRecord = require('./routes/leaveRecordRoute');
@@ -26,7 +26,7 @@ app.use("/leaveRequest", leaveRequest);
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(async function () {
-    app.listen(3000);
+    app.listen(process.env.PORT);
   })
   .catch((err) => {
     throw Error(err); 
