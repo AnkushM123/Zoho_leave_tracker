@@ -11,6 +11,7 @@ const roleRoute = require('./routes/roleRoute');
 const leaveType = require('./routes/leaveTypeRoute');
 const leaveRecord = require('./routes/leaveRecordRoute');
 const leaveRequest=require('./routes/leaveRequestRoute');
+const scheduleService=require('./core/services/scheduler-service');
 
 app.use(cors());
 app.use(express.json());
