@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
+const { string } = require('yup');
 
 const userSchema = new mongoose.Schema({
+  employeeId: { 
+    type: String, 
+  },
   name: {
     type: String,
     required: true
@@ -25,18 +29,17 @@ const userSchema = new mongoose.Schema({
       type: String
     },
   },
-  age: {
-    type: Number,
+  dateOfBirth: {
+    type: Date,
     required: true
   },
   mobile: {
     type: String,
     required: true,
   },
-  gender: {
-    type: String,
-    enum: ['male', 'female'],
-    required: true
+  gender: { 
+    type: Number,
+    enum: [0, 1] 
   },
   roles: [
     {
