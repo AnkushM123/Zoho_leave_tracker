@@ -186,7 +186,6 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const result = await userService.getByEmail(req.body.email);
-
   if (result.length > 0) {
     let role = '';
     if (result[0].roles.includes("658eacbb510f63f754e68d02")) {
